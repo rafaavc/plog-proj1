@@ -1,0 +1,6 @@
+
+
+display :-
+	print('Hello world!').
+
+
