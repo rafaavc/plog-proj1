@@ -51,7 +51,7 @@ Se o jogador for o primeiro a rodear uma dada cave de dragão em todos os lados,
 As caves dos lados fazem aparecer dragões com 3 pontos de poder; a do centro um dragão com 5 pontos de poder.
 
 
-#### Ligações
+### Ligações
 [Página do jogo](https://boardgamegeek.com/boardgame/306972/three-dragons)
 
 [Regras](https://s3.amazonaws.com/geekdo-files.com/bgg269618?response-content-disposition=inline%3B%20filename%3D%22Three_Dragons_Rules_version_1.0.pdf%22&response-content-type=application%2Fpdf&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJYFNCT7FKCE4O6TA%2F20201030%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20201030T224441Z&X-Amz-SignedHeaders=host&X-Amz-Expires=120&X-Amz-Signature=a1249e0aaec5e63d4d5dbb943466e9caf86304eeff722a67ed031a81b65bff46)
