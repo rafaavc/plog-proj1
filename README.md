@@ -54,9 +54,9 @@ As caves dos lados fazem aparecer dragões com 3 pontos de poder; a do centro um
 ### Ligações
 [Página do jogo](https://boardgamegeek.com/boardgame/306972/three-dragons)
 
-[Regras](https://s3.amazonaws.com/geekdo-files.com/bgg269618?response-content-disposition=inline%3B%20filename%3D%22Three_Dragons_Rules_version_1.0.pdf%22&response-content-type=application%2Fpdf&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJYFNCT7FKCE4O6TA%2F20201030%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20201030T224441Z&X-Amz-SignedHeaders=host&X-Amz-Expires=120&X-Amz-Signature=a1249e0aaec5e63d4d5dbb943466e9caf86304eeff722a67ed031a81b65bff46)
+[Regras](https://drive.google.com/file/d/1WECUYhpHmKJimMTosrjJz_ZRqtwFB25M/view?usp=sharing)
 
-[Tabuleiro](https://s3.amazonaws.com/geekdo-files.com/bgg269617?response-content-disposition=inline%3B%20filename%3D%223_Dragons_Board_version_10.pdf%22&response-content-type=application%2Fpdf&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJYFNCT7FKCE4O6TA%2F20201030%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20201030T224505Z&X-Amz-SignedHeaders=host&X-Amz-Expires=120&X-Amz-Signature=7a3d79c00c9bdc00b3cf21d592219fc5e3e503c5e252dc8e2f1f0436040e4c35)
+[Tabuleiro](https://drive.google.com/file/d/1RkYiaxLTF0aXfGMNxtuH8Z0a9UlHSgjb/view?usp=sharing)
 
 ## Representação interna do estado do jogo
 <!--Indicação de como é representado o estado do jogo, incluindo tabuleiro, jogador atual, peças capturadas ou ainda por jogar / outras informações necessárias. Exemplos da representação em Prolog de estados *inicial*, *intermédio* e *final*. Indicação do significado de cada átomo.-->
