@@ -1,4 +1,5 @@
 %database
+
 board([
 	[mountain, black, black, black, black, black, black, black, mountain],
 	[empty, empty, empty, empty, black, empty, empty, empty, empty],
@@ -11,6 +12,33 @@ board([
 	[mountain, white, white, white, white, white, white, white, mountain]
 ]).
 
+/*
+board([
+	[mountain, empty, black, empty, black, empty, black, empty, mountain],
+	[empty, empty, empty, empty, black, empty, empty, empty, white],
+	[empty, empty, empty, empty, empty, empty, white, empty, empty],
+	[empty, empty, empty, empty, black, empty, empty, empty, empty],
+	[dragonCave, empty, empty, empty, dragonCave, empty, empty, empty, dragonCave],
+	[white, empty, empty, black, empty, empty, empty, empty, empty],
+	[empty, empty, empty, empty, empty, empty, empty, empty, black],
+	[empty, empty, empty, empty, white, empty, empty, empty, empty],
+	[mountain, empty, white, empty, empty, white, empty, empty, mountain]
+]).
+*/
+
+/*
+board([
+	[mountain, empty, black, empty, empty, empty, black, empty, mountain],
+	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
+	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
+	[empty, empty, empty, empty, black, empty, empty, empty, empty],
+	[dragonCave, empty, empty, empty, dragonCave, empty, empty, empty, dragonCave],
+	[empty, empty, empty, black, empty, empty, empty, empty, empty],
+	[empty, empty, empty, empty, empty, empty, empty, empty, black],
+	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
+	[mountain, empty, white, empty, empty, empty, empty, empty, mountain]
+]).
+*/
 
 symbol(mountain, 'M').
 symbol(black, 'B').
