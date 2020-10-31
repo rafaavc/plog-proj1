@@ -16,7 +16,7 @@ Project for the Logic Programming course 2020
 NOTA: neste momento tem 382 palavras, acima do que é pedido. Secalhar remover algo / sintetizar mais.
 -->
 
-O tabuleiro do jogo é constituído por uma grelha quadrada 9x9, com uma *montanha* em cada canto e três *caves de dragão* no centro (para referência, ver a ligação 'Tabuleiro' em baixo).
+O tabuleiro do jogo é constituído por uma grelha 9x9, com uma *montanha* em cada canto e três *caves de dragão* no centro (para referência, ver a ligação 'Tabuleiro' em baixo).
 
 Um dos conceitos chave é o de "Captura Custodial". A peça do jogador adversário é capturada quando é rodeada em lados opostos com duas peças, ou então com uma peça e uma *cave de dragão* ou com uma peça e uma *montanha*.
 
