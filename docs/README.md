@@ -49,11 +49,11 @@ As caves dos lados fazem aparecer dragões com 3 pontos de poder; a do centro um
 
 
 ### Ligações
-[Página do jogo](https://boardgamegeek.com/boardgame/306972/three-dragons)
+[Página do jogo](https://boardgamegeek.com/boardgame/306972/three-dragons) (https://boardgamegeek.com/boardgame/306972/three-dragons)
 
-[Regras](https://drive.google.com/file/d/1WECUYhpHmKJimMTosrjJz_ZRqtwFB25M/view?usp=sharing)
+[Regras](https://drive.google.com/file/d/1WECUYhpHmKJimMTosrjJz_ZRqtwFB25M/view?usp=sharing) (https://drive.google.com/file/d/1WECUYhpHmKJimMTosrjJz_ZRqtwFB25M/view?usp=sharing)
 
-[Tabuleiro](https://drive.google.com/file/d/1RkYiaxLTF0aXfGMNxtuH8Z0a9UlHSgjb/view?usp=sharing)
+[Tabuleiro](https://drive.google.com/file/d/1RkYiaxLTF0aXfGMNxtuH8Z0a9UlHSgjb/view?usp=sharing) (https://drive.google.com/file/d/1RkYiaxLTF0aXfGMNxtuH8Z0a9UlHSgjb/view?usp=sharing)
 
 ## Representação interna do estado do jogo
 <!--Indicação de como é representado o estado do jogo, incluindo tabuleiro, jogador atual, peças capturadas ou ainda por jogar / outras informações necessárias. Exemplos da representação em Prolog de estados *inicial*, *intermédio* e *final*. Indicação do significado de cada átomo.-->

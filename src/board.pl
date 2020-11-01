@@ -60,7 +60,8 @@ display_board_line :-
 
 %displays the board's grid top line
 display_board_top_line :-
-	print('\x250C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2510\ ').	
+	print('\x250C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2510\ '),
+	nl.	
 
 %displays the board's grid bottom line
 display_board_bottom_line :-
@@ -122,7 +123,6 @@ display_players_pieces([P0, P1 | _]) :-
 % display_game(+GameState, +Player)
 display_game([H | T], Player) :-
 	display_board_top_line,
-	nl,
 	display_board(T),
 	display_players_pieces(H),
 	display_player(Player).
