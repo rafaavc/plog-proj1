@@ -6,16 +6,16 @@ initial(GameState) :-
 	board(GameState).
 
 % initial_player(-Player)
-initial_player(Player) :-
-	Player is 0.
+initial_player(0).
 
 % toggle_player(+CurrentPlayer, -Out)
-toggle_player(CurrentPlayer, Out) :-
-	(CurrentPlayer == 0 -> Out is 1; Out is 0).
-
-% get_player(+CurrentPlayer, -Out)
-get_player(CurrentPlayer, Out) :-
-	(ground(CurrentPlayer) -> toggle_player(CurrentPlayer, Out) ; initial_player(Out)).
+toggle_player(0, 1).
+toggle_player(1, 0).
+toggle_player(P, 0) :- 
+	print('Invalid current player: '),
+	print(P),
+	nl,
+	fail.
 
 % Updates the game state; not functional yet
 % update_game_state(+CurrentGameState, -NextGameState)
@@ -28,14 +28,14 @@ game_loop(GameState, Player, C) :-
 	display_game(GameState, Player),
 	% read player's moves,
 	update_game_state(GameState, NextGameState),
-	get_player(Player, NextPlayer),
+	toggle_player(Player, NextPlayer),
 	C1 is C+1,
-	(C1 < 3 -> game_loop(NextGameState, NextPlayer, C1); print('Game ended (simulating game loop with a counter).\n')).
+	(C < 3 -> game_loop(NextGameState, NextPlayer, C1); print('Game ended (simulating game loop with a counter).\n')).
 
 play :-
 	initial(GameState),
-	get_player(_, NextPlayer),
-	game_loop(GameState, NextPlayer, 0).
+	initial_player(Player),
+	game_loop(GameState, Player, 0).
 
 
 
