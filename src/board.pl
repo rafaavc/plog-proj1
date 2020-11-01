@@ -1,7 +1,8 @@
 %database
 
-%board(-Board)
+% board(-Board)
 board([
+	[8, 8], % amount of pieces in-game for each player (player0 - white, player1 - black)
 	[mountain, black, black, black, black, black, black, black, mountain],
 	[empty, empty, empty, empty, black, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
@@ -16,6 +17,7 @@ board([
 /*
 % intermediate state
 board([
+	[6, 7],
 	[mountain, empty, black, empty, black, empty, black, empty, mountain],
 	[empty, empty, empty, empty, black, empty, empty, empty, white],
 	[empty, empty, empty, empty, empty, empty, white, empty, empty],
@@ -31,6 +33,7 @@ board([
 /*
 % final state
 board([
+	[1, 5],
 	[mountain, empty, black, empty, empty, empty, black, empty, mountain],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
@@ -96,7 +99,7 @@ display_board([H | []]) :-
 
 display_board([H | T]) :-
 	display_board_row(H),
-	display_board(T, _).
+	display_board(T).
 
 display_player(Player) :-
 	print('Player '),
@@ -104,12 +107,24 @@ display_player(Player) :-
 	print('\'s turn.'),
 	nl.
 
+% display_players_pieces(+Pieces)
+display_players_pieces([P0, P1 | _]) :- 
+	print('Player 0 has '),
+	print(P0), 
+	print(' pieces.'), 
+	nl,
+	print('Player 1 has '),
+	print(P1),
+	print(' pieces.'), 
+	nl.
+
 %displays game state
 % display_game(+GameState, +Player)
 display_game([H | T], Player) :-
 	display_board_top_line,
 	nl,
-	display_board([H | T]),
+	display_board(T),
+	display_players_pieces(H),
 	display_player(Player).
 
 

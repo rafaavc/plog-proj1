@@ -11,10 +11,7 @@ Project for the Logic Programming course 2020
 
 ## Descrição do jogo
 
-<!--Descrição do jogo e das suas regras (até 300 palavras). Incluir ligações usadas (página do jogo, livro de regras...).
-
-NOTA: neste momento tem 382 palavras, acima do que é pedido. Secalhar remover algo / sintetizar mais.
--->
+<!-- Descrição do jogo e das suas regras. Incluir ligações usadas (página do jogo, livro de regras...). -->
 
 O tabuleiro do jogo é constituído por uma grelha 9x9, com uma *montanha* em cada canto e três *caves de dragão* no centro (ver a ligação 'Tabuleiro' em baixo).
 
@@ -65,6 +62,10 @@ As caves dos lados fazem aparecer dragões com 3 pontos de poder; a do centro um
 
 O tabuleiro será representado com o recurso de uma lista de listas. 
 
+#### Representação do número de peças de cada jogador
+
+O número de peças de cada jogador encontra-se representado pelo primeiro elemento da lista de listas que constitui o tabuleiro. O primeiro número corresponde ao jogador 0, das peças brancas, e o segundo ao jogador 1, das peças pretas.
+
 #### Representação de cada átomo
 No modo básico do jogo cada elemento do tabuleiro poderá apenas tomar os seguintes valores:
 
@@ -77,6 +78,7 @@ No modo básico do jogo cada elemento do tabuleiro poderá apenas tomar os segui
 #### Estado Inicial
 ```prolog
 board([
+	[8, 8],   % player 0 - 8 peças (brancas); player 1 - 8 peças (pretas)
 	[mountain, black, black, black, black, black, black, black, mountain],
 	[empty, empty, empty, empty, black, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
@@ -92,6 +94,7 @@ board([
 #### Possível Estado intermédio
 ```prolog
 board([
+	[6, 7],   % player 0 - 6 peças (brancas); player 1 - 7 peças (pretas)
 	[mountain, empty, black, empty, black, empty, black, empty, mountain],
 	[empty, empty, empty, empty, black, empty, empty, empty, white],
 	[empty, empty, empty, empty, empty, empty, white, empty, empty],
@@ -105,8 +108,10 @@ board([
 ```
 
 #### Possível Estado final
+O jogo termina quando um dos jogadores tem apenas 1 peça (neste caso o jogador 0). O vencedor é o jogador 1 (peças pretas).
 ```prolog
 board([
+	[1, 5],   % player 0 - 1 peça (branca); player 1 - 5 peças (pretas)
 	[mountain, empty, black, empty, empty, empty, black, empty, mountain],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
@@ -122,13 +127,19 @@ board([
 ## Visualização do estado do jogo
 <!--Pequena descrição da implementação do predicado de visualização do estado de jogo. Até 200 palavras.-->
 
-O predicado de visualização **display_game(+GameState, +Player)** representa o limite superiror do tabuleiro e recorre ao predicado **display_board/2** para representar o atual estado de jogo.
+O predicado **play/0** inicia o jogo.
 
-O predicado **display_board(+GameState, +Player)** representa o tabuleiro linha a linha, chamando o predicado **display_row/1** o qual representa cada linha do tabuleiro.
+O predicado de visualização **display_game(+GameState, +Player)** representa o limite superior do tabuleiro e recorre ao predicado **display_board/1** para representar o atual estado de jogo.
+
+O predicado **display_board(+GameState)** representa o tabuleiro linha a linha, chamando o predicado **display_row/1**, o qual representa cada linha do tabuleiro.
 
 O predicado **display_edge_row/1** representa apenas a última linha do tabuleiro de forma a este apresentar a forma de grelha presente nas imagens em baixo anexadas.
 
-Os predicados **display_board_line**, **display_board_top_line** e **display_board_bottom_line** são responsáveis por representar a linhas horizontais que delimitam cada célula do tabuleiro.
+Os predicados **display_board_line/0**, **display_board_top_line/0** e **display_board_bottom_line/0** são responsáveis por representar a linhas horizontais que delimitam cada célula do tabuleiro.
+
+O predicado **display_players_pieces/1** apresenta no ecrã o número de peças que cada jogador possui em jogo.
+
+O predicado **display_player/1** apresenta no ecrã o jogador atual.
 
 Cada átomo presente no tabuleiro é representado por uma letra que lhe é associada da seguinte forma:
 
