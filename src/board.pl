@@ -1,5 +1,6 @@
 %database
 
+%board(-Board)
 board([
 	[mountain, black, black, black, black, black, black, black, mountain],
 	[empty, empty, empty, empty, black, empty, empty, empty, empty],
@@ -43,7 +44,7 @@ board([
 */
 
 % establishes correspondence between each atom and the symbol to be displayed
-
+% symbol(+Atom, -Symbol)
 symbol(mountain, 'M').
 symbol(black, 'B').
 symbol(empty, ' ').
@@ -63,6 +64,7 @@ display_board_bottom_line :-
 	print('\x2514\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2518\\n').
 
 %display each board row
+%display_board_row(+Row)
 display_board_row([]) :- 
 	print('\x2502\\n'),
 	display_board_line.
@@ -75,6 +77,7 @@ display_board_row([H | T]) :-
 	display_board_row(T).
 
 %display board last row
+%display_board_edge_row(+Row)
 display_board_edge_row([]) :-
 	print('\x2502\\n'),
 	display_board_bottom_line.
@@ -87,10 +90,11 @@ display_board_edge_row([H | T]) :-
 	display_board_edge_row(T).
 
 %display all board elements
-display_board([H | []], _) :-
+%display_board(+GameState)
+display_board([H | []]) :-
 	display_board_edge_row(H).
 
-display_board([H | T], _) :-
+display_board([H | T]) :-
 	display_board_row(H),
 	display_board(T, _).
 
@@ -101,10 +105,11 @@ display_player(Player) :-
 	nl.
 
 %displays game state
+% display_game(+GameState, +Player)
 display_game([H | T], Player) :-
 	display_board_top_line,
 	nl,
-	display_board([H | T], Player),
+	display_board([H | T]),
 	display_player(Player).
 
 

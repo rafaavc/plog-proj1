@@ -5,12 +5,15 @@
 initial(GameState) :-
 	board(GameState).
 
+% initial_player(-Player)
 initial_player(Player) :-
 	Player is 0.
 
+% toggle_player(+CurrentPlayer, -Out)
 toggle_player(CurrentPlayer, Out) :-
 	(CurrentPlayer == 0 -> Out is 1; Out is 0).
 
+% get_player(+CurrentPlayer, -Out)
 get_player(CurrentPlayer, Out) :-
 	(ground(CurrentPlayer) -> toggle_player(CurrentPlayer, Out) ; initial_player(Out)).
 
@@ -20,6 +23,7 @@ update_game_state(_, NextGameState) :-
 	board(NextGameState).
 
 % The C arg is just a counter to simulate the game end (Ends when C == 3)
+% game_loop(+GameState, +Player, +C)
 game_loop(GameState, Player, C) :-
 	display_game(GameState, Player),
 	% read player's moves,
