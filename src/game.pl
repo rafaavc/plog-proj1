@@ -9,10 +9,10 @@ initial(GameState) :-
 % initial_player(-Player) 
 initial_player(0).
 
-% toggle_player(+CurrentPlayer, -Out)
+% toggle_player(+CurrentPlayer, -NextPlayer)
 toggle_player(0, 1).
 toggle_player(1, 0).
-toggle_player(P, 0) :- 
+toggle_player(P, _) :- 
 	print('Invalid current player: '),
 	print(P),
 	nl,

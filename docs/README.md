@@ -60,11 +60,15 @@ As caves dos lados fazem aparecer dragões com 3 pontos de poder; a do centro um
 
 ### Tabuleiro
 
-O tabuleiro será representado com o recurso de uma lista de listas. 
+O tabuleiro será representado com o recurso a uma lista de listas. 
 
 #### Representação do número de peças de cada jogador
 
 O número de peças de cada jogador encontra-se representado pelo primeiro elemento da lista de listas que constitui o tabuleiro. O primeiro número corresponde ao jogador 0, das peças brancas, e o segundo ao jogador 1, das peças pretas.
+
+#### Representação do jogador atual
+
+O jogador atual é obtido como parâmetro no predicado *display_game*, sendo previamente definido como sendo o contrário do jodador anterior (se o jogador anterior foi o jogador 0, então o jogador atual será o jogador 1) através do recurso ao predicado *toggle_player(+CurrentPlayer, -NextPlayer)*. No inicio, o jogador é inicializado através do recurso ao predicado *initial_player(-Player)*.
 
 #### Representação de cada átomo
 No modo básico do jogo cada elemento do tabuleiro poderá apenas tomar os seguintes valores:
