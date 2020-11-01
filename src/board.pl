@@ -13,6 +13,7 @@ board([
 ]).
 
 /*
+% intermediate state
 board([
 	[mountain, empty, black, empty, black, empty, black, empty, mountain],
 	[empty, empty, empty, empty, black, empty, empty, empty, white],
@@ -27,6 +28,7 @@ board([
 */
 
 /*
+% final state
 board([
 	[mountain, empty, black, empty, empty, empty, black, empty, mountain],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
@@ -39,6 +41,8 @@ board([
 	[mountain, empty, white, empty, empty, empty, empty, empty, mountain]
 ]).
 */
+
+% establishes correspondence between each atom and the symbol to be displayed
 
 symbol(mountain, 'M').
 symbol(black, 'B').
@@ -56,7 +60,7 @@ display_board_top_line :-
 
 %displays the board's grid bottom line
 display_board_bottom_line :-
-	print('\x2514\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2518\ ').
+	print('\x2514\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2518\\n').
 
 %display each board row
 display_board_row([]) :- 
@@ -88,10 +92,21 @@ display_board([H | []], _) :-
 
 display_board([H | T], _) :-
 	display_board_row(H),
-	display_board(T, _).	
+	display_board(T, _).
+
+display_player(Player) :-
+	print('Player '),
+	print(Player),
+	print('\'s turn.'),
+	nl.
 
 %displays game state
-display_game([H | T], _) :-
+display_game([H | T], Player) :-
 	display_board_top_line,
 	nl,
-	display_board([H | T], _).
+	display_board([H | T], Player),
+	display_player(Player).
+
+
+
+
