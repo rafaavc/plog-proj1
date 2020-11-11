@@ -1,3 +1,0 @@
-
-M - mountain
-D - dragonCave

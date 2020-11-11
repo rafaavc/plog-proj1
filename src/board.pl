@@ -55,17 +55,17 @@ symbol(white, 'W').
 symbol(dragonCave, 'D').
 
 %displays the board's grid intermediate elements
-display_board_line :-
+display_board_middle_separator :-
 	print('  \x251C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2524\\n').
 
 %displays the board's grid top line
-display_board_top_line :-
+display_board_top_separator :-
 	print('    1   2   3   4   5   6   7   8   9\n'),
 	print('  \x250C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2510\ '),
 	nl.	
 
 %displays the board's grid bottom line
-display_board_bottom_line :-
+display_board_bottom_separator :-
 	print('  \x2514\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2518\\n').
 
 
@@ -82,12 +82,13 @@ display_board_row([H | T], N) :-
 display_board([H | []], N) :-
 	display_board_row(H, N),
 	print(' \x2502\\n'),
-	display_board_bottom_line.
+	display_board_bottom_separator.
 
 display_board([H | T], N) :-
+	(N == 1 -> display_board_top_separator; true),
 	display_board_row(H, N),
 	print(' \x2502\\n'),
-	display_board_line,
+	display_board_middle_separator,
 	N1 is N+1,
 	display_board(T, N1).
 
@@ -111,7 +112,6 @@ display_players_pieces([P0, P1 | _]) :-
 %displays game state
 % display_game(+GameState, +Player)
 display_game([H | T], Player) :-
-	display_board_top_line,
 	display_board(T, 1),
 	display_players_pieces(H),
 	display_player(Player).
