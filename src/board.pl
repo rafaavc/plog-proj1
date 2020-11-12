@@ -60,7 +60,7 @@ display_board_middle_separator :-
 
 %displays the board's grid top line
 display_board_top_separator :-
-	print('    1   2   3   4   5   6   7   8   9\n'),
+	print('    A   B   C   D   E   F   G   H   I\n'),
 	print('  \x250C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2510\ '),
 	nl.	
 

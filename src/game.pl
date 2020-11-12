@@ -1,5 +1,6 @@
 
 :- consult('board.pl').
+:- consult('input.pl').
 
 % initial(-GameState)
 initial(GameState) :-
@@ -23,13 +24,22 @@ toggle_player(P, _) :-
 update_game_state(_, NextGameState) :-
 	board(NextGameState).
 
+% get_move(-Move, +GameState)
+get_move(move(Position1, Position2), GameState) :-
+	% read player's moves,
+	get_position_input(CurrentPosition),
+	%verify valid CurrentPosition
+	get_position_input(NextPosition).
+	%verify valid NextPosition
+	Position1 is CurrentPosition, Position2 is NextPosition.
+
 % The C arg is just a counter to simulate the game end (Ends when C == 3)
 % In reality, the game ends when one of the players only has one piece, and the winner is the other
 % game_loop(+GameState, +Player, +C)
 game_loop(GameState, Player, C) :-
 	display_game(GameState, Player),
-	% read player's moves,
-	update_game_state(GameState, NextGameState),
+	get_move(Move, GameState),
+	% apply_move(Move, GameState, NextGameState) (Moves the piece and sees if any piece was eaten)
 	toggle_player(Player, NextPlayer),
 	C1 is C+1,
 	(C < 3 -> game_loop(NextGameState, NextPlayer, C1); print('Game ended (simulating game loop with a counter; not changin game state, only toggling the current player).\n')).
