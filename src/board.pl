@@ -2,7 +2,6 @@
 
 % board(-Board)
 board([
-	[8, 8], % amount of pieces in-game for each player (player0 - white, player1 - black)
 	[mountain, black, black, black, black, black, black, black, mountain],
 	[empty, empty, empty, empty, black, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
@@ -93,27 +92,26 @@ display_board([H | T], N) :-
 	display_board(T, N1).
 
 display_player(Player) :-
-	print('Player '),
 	print(Player),
 	print('\'s turn.'),
 	nl.
 
 % display_players_pieces(+Pieces)
-display_players_pieces([P0, P1 | _]) :- 
-	print('Player 0 has '),
-	print(P0), 
+display_players_pieces(npieces(NWhitePieces, NBlackPieces)) :- 
+	print('white player has '),
+	print(NWhitePieces), 
 	print(' pieces.'), 
 	nl,
-	print('Player 1 has '),
-	print(P1),
+	print('black player has '),
+	print(NBlackPieces),
 	print(' pieces.'), 
 	nl.
 
 %displays game state
-% display_game(+GameState, +Player)
-display_game([H | T], Player) :-
-	display_board(T, 1),
-	display_players_pieces(H),
+% display_game(+GameState)
+display_game(game_state(Player, NPieces, GameBoard)) :-
+	display_board(GameBoard, 1),
+	display_players_pieces(NPieces),
 	display_player(Player).
 
 
