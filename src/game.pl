@@ -68,6 +68,14 @@ get_desired_position_input(position(X1, Y1), GameBoard, DesiredOccupant):-
 			; (print('The coordinates you inserted are not \''), print(DesiredOccupant), print('\'.\n'), get_desired_position_input(position(X1, Y1), GameBoard, DesiredOccupant))
 	).
 
+verify_orthogonal(position(X1, Y1), position(X2, Y2), GameBoard) :-
+	get_desired_position_input(position(TempX2, TempY2), GameBoard, empty),
+	(
+		(X1 \= TempX2, Y1 \= TempY2)
+			-> print('Not orthogonal\n'), verify_orthogonal(position(X1, Y1), position(X2, Y2), GameBoard);
+			X2 is TempX2, Y2 is TempY2
+	).
+
 % get_move(-Move, +GameState)
 get_move(move(Position1, Position2, Piece), game_state(CurrentPlayer, _, GameBoard)) :-
 	% read player's moves
@@ -75,7 +83,7 @@ get_move(move(Position1, Position2, Piece), game_state(CurrentPlayer, _, GameBoa
 	get_desired_position_input(position(X1, Y1), GameBoard, CurrentPlayer),
 	
 	print('Desired place:\n'),
-	get_desired_position_input(position(X2, Y2), GameBoard, empty),
+	verify_orthogonal(position(X1, Y1), position(X2, Y2), GameBoard),
 
 	Position1 = position(X1, Y1), Position2 = position(X2, Y2), Piece = CurrentPlayer.
 
