@@ -15,62 +15,46 @@ toggle_player(P, _) :-
 	nl,
 	fail.
 
-updateBoardColumn(OldH, NewH, move(position(X1, Y1), position(X2, Y2), Piece), ColumnNumber, LineNumber) :-
-	(X1 =:= ColumnNumber, Y1 =:= LineNumber -> NewH = empty;
-		(X2 =:= ColumnNumber, Y2 =:= LineNumber
-			-> NewH = Piece
-			; NewH = OldH
-		)
-	).
+updateBoardColumn(Index, NewElement, Row, NewRow) :-
+	nth1(Index, Row, _, Rest),
+	nth1(Index, NewRow, NewElement, Rest).
 
-iterateBoardColumn([OldH|[]], [NewH|_], Move, ColumnNumber, LineNumber) :-
-	updateBoardColumn(OldH, NewH, Move, ColumnNumber, LineNumber).
+updateBoardRow(Index, NewRow, Board, NewBoard) :-
+	nth1(Index, Board, _, Rest),
+	nth1(Index, NewBoard, NewRow, Rest).
 
-iterateBoardColumn([OldH|OldT], [NewH|NewT], Move, ColumnNumber, LineNumber) :-
-	updateBoardColumn(OldH, NewH, Move, ColumnNumber, LineNumber),
-	NextColumnNumber is ColumnNumber + 1,
-	iterateBoardColumn(OldT, NewT, Move, NextColumnNumber, LineNumber).
+%
+add_pieces([], NextBoard, NextBoard).
+add_pieces([piecePosition(position(X, Y), Piece)|PiecesT], CurrentBoard, TempBoard) :-
+	nth1(Y, CurrentBoard, Row),
+	updateBoardColumn(X, Piece, Row, NewRow),
+	updateBoardRow(Y, NewRow, CurrentBoard, TempBoard),
+	add_pieces(PiecesT, TempBoard, TempBoard).
 
+%
+remove_pieces([], NextBoard, NextBoard).
+remove_pieces([piecePosition(position(X, Y), Piece)|PiecesT], CurrentBoard, NextBoard) :-
+	nth1(Y, CurrentBoard, Row),
+	print('Remove '), print(piecePosition(position(X, Y), Piece)), nl,
+	updateBoardColumn(X, empty, Row, NewRow),
+	updateBoardRow(Y, NewRow, CurrentBoard, TempBoard),
+	remove_pieces(PiecesT, TempBoard, NextBoard).
 
-updateBoardLine(OldH, NewH, move(position(X1, Y1), position(X2, Y2), Piece), RowNumber) :-
-	(
-		Y1 \= RowNumber, Y2 \= RowNumber 
-			-> NewH = OldH
-			; iterateBoardColumn(OldH, NewH, move(position(X1, Y1), position(X2, Y2), Piece), 1, RowNumber)
-	).
-
-iterateBoardLine([OldH|[]], [NewH|_], Move, RowNumber) :-
-	updateBoardLine(OldH, NewH, Move, RowNumber).
-
-iterateBoardLine([OldH|OldT], [NewH|NewT], Move, RowNumber) :-
-	updateBoardLine(OldH, NewH, Move, RowNumber),
-	NextRowNumber is RowNumber + 1,
-	iterateBoardLine(OldT, NewT, Move, NextRowNumber).
-
-
-move_piece(Move, CurrentBoard, NextBoard) :-
-	iterateBoardLine(CurrentBoard, NextBoard, Move, 1).
-
-
-is_eaten_horizontal(piecePosition(Position, Piece), GameBoard) :-
-	getPieceWithOffset(Position, 1, 0, GameBoard, RightOfPiece),
-	getPieceWithOffset(Position, -1, 0, GameBoard, LeftOfPiece),
-	(RightOfPiece =\= empty, RightOfPiece =\= Piece, LeftOfPiece =\= empty, RightOfPiece =\= Piece)).
-
-is_eaten_vertical(piecePosition(Position, Piece), GameBoard) :-
-	getPieceWithOffset(Position, 0, 1, GameBoard, BottomOfPiece),
-	getPieceWithOffset(Position, 0, -1, GameBoard, TopOfPiece),
-	(BottomOfPiece =\= empty, BottomOfPiece =\= Piece, TopOfPiece =\= empty, TopOfPiece =\= Piece).
+% Applies a move
+% apply_move(+PiecesToRemove, +CurrentGameState, -NextGameState)
+apply_move(PiecesToRemove, game_state(CurrentPlayer, CurrentNPieces, CurrentBoard), game_state(NextPlayer, CurrentNPieces, NextBoard)) :-
+	remove_pieces(PiecesToRemove, CurrentBoard, NextBoard),
+	toggle_player(CurrentPlayer, NextPlayer).
 
 % getPieceWithXYOffset(+PiecePosition, +Vvar, +Yvar, +GameBoard, -Piece)
-getPieceWithXYOffset(position(X, Y), Xvar, Yvar, GameBoard, Piece) :-
+getPieceWithXYOffset(position(X, Y), Xvar, Yvar, GameBoard, piecePosition(position(X1, Y1), Piece)) :-
 	Y1 is Y+Yvar,
 	Y1 > 0,
-	Y2 <= 9,
+	Y1 =< 9,
 	nth1(Y1, GameBoard, Line),
 	X1 is X+Xvar,
 	X1 > 0,
-	X1 <= 9,
+	X1 =< 9,
 	nth1(X1, Line, Piece).
 
 % Checks if a piece is eaten
@@ -78,33 +62,41 @@ getPieceWithXYOffset(position(X, Y), Xvar, Yvar, GameBoard, Piece) :-
 is_eaten(PiecePosition, GameBoard) :- is_eaten_horizontal(PiecePosition, GameBoard).
 is_eaten(PiecePosition, GameBoard) :- is_eaten_vertical(PiecePosition, GameBoard).
 
+is_eaten_horizontal(piecePosition(Position, Piece), GameBoard) :-
+	getPieceWithXYOffset(Position, 1, 0, GameBoard, piecePosition(_, RightOfPiece)),
+	getPieceWithXYOffset(Position, -1, 0, GameBoard, piecePosition(_, LeftOfPiece)),
+	(RightOfPiece \== empty, RightOfPiece \== Piece, LeftOfPiece \== empty, RightOfPiece \== Piece).
+
+is_eaten_vertical(piecePosition(Position, Piece), GameBoard) :-
+	getPieceWithXYOffset(Position, 0, 1, GameBoard, piecePosition(_, BottomOfPiece)),
+	getPieceWithXYOffset(Position, 0, -1, GameBoard, piecePosition(_, TopOfPiece)),
+	(BottomOfPiece \== empty, BottomOfPiece \== Piece, TopOfPiece \== empty, TopOfPiece \== Piece).
+
 % Adds pieces to list containing pieces to remove from the board
-% add_pieces_to_remove(+Pieces, -PiecesToRemoveT)
-add_pieces_to_remove([], []).
-add_pieces_to_remove([Hp|Tp], [H|T]) :-
+% add_pieces_to_remove(+GameBoard, +Pieces, -PiecesToRemoveT)
+add_pieces_to_remove(_, [], _).
+add_pieces_to_remove(GameBoard, [Hp|Tp], List) :-
+	print('Checking piece: '), print(Hp), nl,
 	(
-		is_eaten(Hp), ground(Hp) -> (H is Hp, add_pieces_to_remove(Tp, T));
-		add_pieces_to_remove(Tp, [H|T])
+		is_eaten(Hp, GameBoard), ground(Hp) -> (print('Eaten\n'), add_pieces_to_remove(GameBoard, Tp, [Hp|List]));
+		(print('Not eaten\n'), add_pieces_to_remove(GameBoard, Tp, List))
 	).
 
-%get_pieces_diff(+Move, +GameState, -PiecesToAdd, -PiecesToRemove)
-get_pieces_diff(move(MoveStartPosition, MoveEndPosition, Piece), game_state(_, _, GameBoard), [PiecesToAddH|PiecesToAddT], [PiecesToRemoveH|PiecesToRemoveT]) :-
-	PiecesToAddH is piecePosition(MoveEndPosition, Piece),
-	PiecesToRemoveH is position(MoveStartPosition),
+%get_pieces_diff(+Move, +GameState, -PiecesToAdd, -PiecesToRemove, -TempGameState)
+get_pieces_diff(move(MoveStartPosition, MoveEndPosition, Piece), game_state(Player, npieces(Whites, Blacks), GameBoard), [PiecesToRemoveH|PiecesToRemoveT], game_state(Player, npieces(Whites, Blacks), TempBoard)) :-
+	PiecesToRemoveH = piecePosition(MoveStartPosition, Piece),
 
-	(getPieceWithOffset(Position, 1, 0, GameBoard, RightOfPiece);true),
-	(getPieceWithOffset(Position, -1, 0, GameBoard, LeftOfPiece);true),
-	(getPieceWithOffset(Position, 0, 1, GameBoard, BottomOfPiece);true),
-	(getPieceWithOffset(Position, 0, -1, GameBoard, TopOfPiece);true),
-	
-	add_pieces_to_remove([RightOfPiece, LeftOfPiece, BottomOfPiece, TopOfPiece], PiecesToRemoveT);
-.
+	%apply user move
+	add_pieces([piecePosition(MoveEndPosition, Piece)], GameBoard, AddBoard),
+	remove_pieces([PiecesToRemoveH], AddBoard, TempBoard),
 
-% Applies a move
-% apply_move(+Move, +CurrentGameState, -NextGameState) 
-apply_move(Move, game_state(CurrentPlayer, CurrentNPieces, CurrentBoard), game_state(NextPlayer, CurrentNPieces, NextBoard)) :-
-	move_piece(Move, CurrentBoard, NextBoard),
-	toggle_player(CurrentPlayer, NextPlayer).
+	(getPieceWithXYOffset(MoveEndPosition, 1, 0, TempBoard, RightOfPiece);true),
+	(getPieceWithXYOffset(MoveEndPosition, -1, 0, TempBoard, LeftOfPiece);true),
+	(getPieceWithXYOffset(MoveEndPosition, 0, 1, TempBoard, BottomOfPiece);true),
+	(getPieceWithXYOffset(MoveEndPosition, 0, -1, TempBoard, TopOfPiece);true),
+
+	PiecesToRemoveT = [],
+	add_pieces_to_remove(TempBoard, [RightOfPiece, LeftOfPiece, BottomOfPiece, TopOfPiece], PiecesToRemoveT).
 
 % Gets a position with the desired type of piece
 %get_desired_position_input(-Position, +GameBoard, +DesiredOccupant)
@@ -141,8 +133,8 @@ get_move(move(Position1, Position2, Piece), game_state(CurrentPlayer, _, GameBoa
 game_loop(GameState, C) :-
 	display_game(GameState),
 	get_move(Move, GameState),
-	get_pieces_diff(Move, GameState, PiecesToAdd, PiecesToRemove),
-	apply_move(PiecesToAdd, PiecesToRemove, GameState, NextGameState),% (Moves the piece and sees if any piece was eaten)
+	get_pieces_diff(Move, GameState, PiecesToRemove, TempGameState),
+	apply_move(PiecesToRemove, TempGameState, NextGameState),
 	C1 is C+1,
 	(C < 3 -> game_loop(NextGameState, C1); print('Game ended (simulating game loop with a counter; not changin game state, only toggling the current player).\n')).
 
