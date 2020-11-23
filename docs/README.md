@@ -24,7 +24,7 @@ Quando uma peça é capturada, é removida do tabuleiro.
 O jogo termina quando um dos jogadores tiver apenas uma peça, sendo o que tiver mais peças no tabuleiro o vencedor.
 
 **Notas:**
-- Um jogador pode mover a sua peça entre duas peças adversárias sem ser capturado (não pode é deixar a peça no meio delas).
+- Um jogador pode mover a sua peça entre duas peças adversárias sem ser capturado.
 - Uma jogada pode capturar mais do que uma peça do adversário.
 
 ### Variantes
