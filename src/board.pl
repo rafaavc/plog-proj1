@@ -2,15 +2,15 @@
 
 % board(-Board)
 board([
-	[mountain, black, black, black, black, black, black, black, mountain],
-	[empty, empty, empty, empty, black, empty, empty, empty, empty],
+	[mountain, dice(black, 3), dice(black, 2), dice(black, 2), dice(black, 2), dice(black, 2), dice(black, 2), dice(black, 3), mountain],
+	[empty, empty, empty, empty, dice(black, 4), empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
 	[dragonCave, empty, empty, empty, dragonCave, empty, empty, empty, dragonCave],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
-	[empty, empty, empty, empty, white, empty, empty, empty, empty],
-	[mountain, white, white, white, white, white, white, white, mountain]
+	[empty, empty, empty, empty, dice(white, 4), empty, empty, empty, empty],
+	[mountain, dice(white, 3), dice(white, 2), dice(white, 2), dice(white, 2), dice(white, 2), dice(white, 2), dice(white, 3), mountain]
 ]).
 
 /*
@@ -55,25 +55,33 @@ symbol(dragonCave, 'D').
 
 %displays the board's grid intermediate elements
 display_board_middle_separator :-
-	print('  \x251C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2524\\n').
+	print('  \x251C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x2524\\n').
 
 %displays the board's grid top line
 display_board_top_separator :-
-	print('    A   B   C   D   E   F   G   H   I\n'),
-	print('  \x250C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2510\ '),
+	print('    A    B    C    D    E    F    G    H    I\n'),
+	print('  \x250C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x2510\ '),
 	nl.	
 
 %displays the board's grid bottom line
 display_board_bottom_separator :-
-	print('  \x2514\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2518\\n').
+	print('  \x2514\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2518\\n').
 
 
 display_board_row([], _).
-display_board_row([H | T], N) :-
+display_board_row([dice(Color, Value) | T], N) :-
 	(N \= -1 -> print(N); true),
-	symbol(H, Value),
+	symbol(Color, ColorValue),
+	print(' \x2502\ '),
+	print(ColorValue),
+	print(Value),
+	display_board_row(T, -1).
+display_board_row([Symbol | T], N) :-
+	(N \= -1 -> print(N); true),
+	symbol(Symbol, Value),
 	print(' \x2502\ '),
 	print(Value),
+	print(' '),
 	display_board_row(T, -1).
 
 %display all board elements

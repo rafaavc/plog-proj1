@@ -51,21 +51,60 @@ getPieceWithXYOffset(position(X, Y), Xvar, Yvar, GameBoard, piecePosition(positi
 	X1 =< 9,
 	nth1(X1, Line, Piece).
 
+% get_dice(+Dice, -Piece)
+% Gets piece value from dice
+get_dice(dice(Piece, Strength), Piece, Strength).
+
+% get_value_from_dice(+Piece, -Value)
+% Gets piece value from Piece either it is a dice or not
+get_value_from_dice(Piece, Value, Strength) :-
+	(
+		(
+			Piece == empty ; Piece == dragonCave ; Piece == mountain
+		) -> Value = Piece;
+		get_dice(Piece, Value, Strength)
+	)
+.
+
 % Checks if a piece is eaten
 % is_eaten(+PiecePosition, +GameBoard)
 is_eaten(PiecePosition, GameBoard) :- is_eaten_horizontal(PiecePosition, GameBoard).
 is_eaten(PiecePosition, GameBoard) :- is_eaten_vertical(PiecePosition, GameBoard).
+is_eaten(PiecePosition, GameBoard) :- is_eaten_by_strength(PiecePosition, GameBoard).
 
-is_eaten_horizontal(piecePosition(Position, Piece), GameBoard) :-
+% eaten_by_strength(+MovedPiece, +Pieces)
+eaten_by_strength(_ ,[]) :- false.
+eaten_by_strength(dice(MovedPiece, MovedStrength), [H|T]) :-
+	get_value_from_dice(H, Piece, Strength),
+	(
+		
+	)
+.
+
+is_eaten_by_strength(piecePosition(Position, dice(Piece, Strength)), GameBoard) :-
 	Piece \= empty, Piece \= mountain, Piece \= dragonCave,
-	getPieceWithXYOffset(Position, 1, 0, GameBoard, piecePosition(_, RightOfPiece)),
-	getPieceWithXYOffset(Position, -1, 0, GameBoard, piecePosition(_, LeftOfPiece)),
+
+	getPieceWithXYOffset(Position, 1, 0, GameBoard, piecePosition(_, RightOfPieceDice)),
+	getPieceWithXYOffset(Position, -1, 0, GameBoard, piecePosition(_, LeftOfPieceDice)),
+	getPieceWithXYOffset(Position, 0, 1, GameBoard, piecePosition(_, BottomOfPieceDice)),
+	getPieceWithXYOffset(Position, 0, -1, GameBoard, piecePosition(_, TopOfPieceDice)),
+
+	eaten_by_strength(dice(Piece, Strength), [RightOfPieceDice, LeftOfPieceDice, BottomOfPieceDice, TopOfPieceDice]).
+
+is_eaten_horizontal(piecePosition(Position, dice(Piece, _)), GameBoard) :-
+	Piece \= empty, Piece \= mountain, Piece \= dragonCave,
+	getPieceWithXYOffset(Position, 1, 0, GameBoard, piecePosition(_, RightOfPieceDice)),
+	getPieceWithXYOffset(Position, -1, 0, GameBoard, piecePosition(_, LeftOfPieceDice)),
+	get_value_from_dice(RightOfPieceDice, RightOfPiece, _),
+	get_value_from_dice(LeftOfPieceDice, LeftOfPiece, _),
 	(RightOfPiece \= empty, RightOfPiece \= Piece, LeftOfPiece \= empty, RightOfPiece \= Piece).
 
-is_eaten_vertical(piecePosition(Position, Piece), GameBoard) :-
+is_eaten_vertical(piecePosition(Position, dice(Piece, _)), GameBoard) :-
 	Piece \= empty, Piece \= mountain, Piece \= dragonCave,
-	getPieceWithXYOffset(Position, 0, 1, GameBoard, piecePosition(_, BottomOfPiece)),
-	getPieceWithXYOffset(Position, 0, -1, GameBoard, piecePosition(_, TopOfPiece)),
+	getPieceWithXYOffset(Position, 0, 1, GameBoard, piecePosition(_, BottomOfPieceDice)),
+	getPieceWithXYOffset(Position, 0, -1, GameBoard, piecePosition(_, TopOfPieceDice)),
+	get_value_from_dice(BottomOfPieceDice, BottomOfPiece, _),
+	get_value_from_dice(TopOfPieceDice, TopOfPiece, _),
 	(BottomOfPiece \= empty, BottomOfPiece \= Piece, TopOfPiece \= empty, TopOfPiece \= Piece).
 
 % Adds pieces to list containing pieces to remove from the board
@@ -88,17 +127,17 @@ get_pieces_to_remove(move(_, MoveEndPosition, _), game_state(_, _, GameBoard), P
 	add_pieces_to_remove(GameBoard, [RightOfPiece, LeftOfPiece, BottomOfPiece, TopOfPiece], Remove, PiecesToRemove).
 
 % Gets a position with the desired type of piece
-%get_desired_position_input(-Position, +GameBoard, +DesiredOccupant)
-get_desired_position_input(position(X1, Y1), GameBoard, DesiredOccupant):-
+%get_desired_position_input(-Position, +GameBoard, +DesiredOccupant, -Piece)
+get_desired_position_input(position(X1, Y1), GameBoard, DesiredOccupant, Piece):-
 	get_position_input(position(XTemp, YTemp)),
 	(
-		(nth1(YTemp, GameBoard, YLine), nth1(XTemp, YLine, DesiredOccupant))
-			-> (X1 = XTemp, Y1 = YTemp)
+		(nth1(YTemp, GameBoard, YLine), (nth1(XTemp, YLine, dice(DesiredOccupant, _)); nth1(XTemp, YLine, DesiredOccupant)))
+			-> (X1 = XTemp, Y1 = YTemp, nth1(XTemp, YLine, Piece))
 			; (print('The coordinates you inserted are not \''), print(DesiredOccupant), print('\'.\n'), get_desired_position_input(position(X1, Y1), GameBoard, DesiredOccupant))
 	).
 
 verify_orthogonal(position(X1, Y1), position(X2, Y2), GameBoard) :-
-	get_desired_position_input(position(TempX2, TempY2), GameBoard, empty),
+	get_desired_position_input(position(TempX2, TempY2), GameBoard, empty, _),
 	(
 		(X1 \= TempX2, Y1 \= TempY2)
 			-> print('Not orthogonal\n'), verify_orthogonal(position(X1, Y1), position(X2, Y2), GameBoard);
@@ -109,18 +148,18 @@ verify_orthogonal(position(X1, Y1), position(X2, Y2), GameBoard) :-
 get_move(move(Position1, Position2, Piece), game_state(CurrentPlayer, _, GameBoard)) :-
 	% read player's moves
 	print('Piece to move:\n'),
-	get_desired_position_input(position(X1, Y1), GameBoard, CurrentPlayer),
+	get_desired_position_input(position(X1, Y1), GameBoard, CurrentPlayer, Piece),
 	
 	print('Desired place:\n'),
 	verify_orthogonal(position(X1, Y1), position(X2, Y2), GameBoard),
 
-	Position1 = position(X1, Y1), Position2 = position(X2, Y2), Piece = CurrentPlayer.
+	Position1 = position(X1, Y1), Position2 = position(X2, Y2).
 
 % update_piece_count(+GameState, +PiecesToRemove, -NextGameState)
-update_player_piece_count(game_state(white, npieces(WhiteCount, BlackCount), CurrentBoard), PiecesToRemove, game_state(black, npieces(WhiteCount, NextBlackCount), CurrentBoard)) :-
+update_player_piece_count(PiecesToRemove, game_state(white, npieces(WhiteCount, BlackCount), CurrentBoard), game_state(black, npieces(WhiteCount, NextBlackCount), CurrentBoard)) :-
 	length(PiecesToRemove, RemovedAmount),
 	NextBlackCount is BlackCount - RemovedAmount.
-update_player_piece_count(game_state(black, npieces(WhiteCount, BlackCount), CurrentBoard), PiecesToRemove, game_state(white, npieces(NextWhiteCount, BlackCount), CurrentBoard)) :-
+update_player_piece_count(PiecesToRemove, game_state(black, npieces(WhiteCount, BlackCount), CurrentBoard), game_state(white, npieces(NextWhiteCount, BlackCount), CurrentBoard)) :-
 	length(PiecesToRemove, RemovedAmount),
 	NextWhiteCount is WhiteCount - RemovedAmount.
 
@@ -137,7 +176,7 @@ game_loop(GameState) :-
 	get_move(Move, GameState),
 	apply_move(Move, GameState, TempGameState),
 	get_pieces_to_remove(Move, TempGameState, PiecesToRemove),
-	update_player_piece_count(TempGameState, PiecesToRemove, TempGameState1),
+	update_player_piece_count(PiecesToRemove, TempGameState, TempGameState1),
 	apply_pieces_to_remove(PiecesToRemove, TempGameState1, NextGameState),
 	(game_is_over(NextGameState) -> true ; game_loop(NextGameState)).
 
