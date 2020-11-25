@@ -71,7 +71,7 @@ get_opposite_type(black, white).
 get_opposite_type(white, black).
 
 % eats_by_strength(+Piece, +Neighboors)
-eats_by_strength(_, [], _, _, _).
+eats_by_strength(_, [], PiecesToRemove, PiecesToRemove, _).
 eats_by_strength(dice(Piece, Strength), [piecePosition(Position, Dice)|T], TempPiecesToRemove, PiecesToRemove, PieceToAdd) :-
 	get_value_from_dice(Dice, TargetPiece, TargetStrength),
 	(
