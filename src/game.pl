@@ -22,10 +22,15 @@ add_pieces([piecePosition(position(X, Y), Piece)|PiecesT], CurrentBoard, TempBoa
 	add_pieces(PiecesT, TempBoard, TempBoard).
 
 %
-remove_pieces([], NextBoard, NextBoard).
-remove_pieces([piecePosition(position(X, Y), _)|PiecesT], CurrentBoard, NextBoard) :-
+remove_pieces([], NextBoard, NextBoard):-
+	print(NextBoard), nl.
+remove_pieces([piecePosition(position(X, Y), Piece)|PiecesT], CurrentBoard, NextBoard) :-
+	Piece =.. [Type|_],
+	print(Type), nl,
 	nth1(Y, CurrentBoard, Row),
-	updateBoardColumn(X, empty, Row, NewRow),
+	(Type = dragonCave -> 
+	updateBoardColumn(X, dragonCave(empty), Row, NewRow) ;
+	updateBoardColumn(X, empty, Row, NewRow)),
 	updateBoardRow(Y, NewRow, CurrentBoard, TempBoard),
 	remove_pieces(PiecesT, TempBoard, NextBoard).
 
@@ -37,12 +42,16 @@ check_dragons(game_state(Player, npieces(WhiteCount, BlackCount), CurrentBoard),
 	nth1(6, CurrentBoard, Row3),
 
 	%left dragon
-	nth1(1, Row1, dice(Piece1, _)),
-	nth1(2, Row2, dice(Piece2, _)),
-	nth1(1, Row3, dice(Piece3, _)),
+	nth1(1, Row1, Piece1),
+	nth1(2, Row2, Piece2),
+	nth1(1, Row3, Piece3),
+
+	get_value_from_dice(Piece1, Value1, _),
+	get_value_from_dice(Piece2, Value2, _),
+	get_value_from_dice(Piece3, Value3, _),
 
 	(
-		(Piece1 == Piece2, Piece2 == Piece3) -> add_pieces([piecePosition(position(1, 5), dragonCave(dice(Piece1, 3)))], CurrentBoard, NextBoard)
+		(Value1 = Value2, Value2 = Value3) -> add_pieces([piecePosition(position(1, 5), dragonCave(dice(white, 3)))], CurrentBoard, NextBoard) ; NextBoard = CurrentBoard
 	).
 
 % apply user move
@@ -77,7 +86,7 @@ get_dice(dice(Piece, Strength), Piece, Strength).
 get_value_from_dice(Piece, Value, Strength) :-
 	(
 		(
-			Piece == empty ; Piece == dragonCave(_) ; Piece == mountain
+			Piece == empty ; Piece == dragonCave(empty) ; Piece == mountain
 		) -> Value = Piece, Strength = 0;
 		get_dice(Piece, Value, Strength)
 	).
@@ -165,7 +174,7 @@ get_desired_position_input(position(X1, Y1), GameBoard, DesiredOccupant, Piece):
 	get_position_input(position(XTemp, YTemp)),
 	(
 		(nth1(YTemp, GameBoard, YLine), (nth1(XTemp, YLine, dragonCave(dice(DesiredOccupant, _))); nth1(XTemp, YLine, dice(DesiredOccupant, _)); nth1(XTemp, YLine, DesiredOccupant)))
-			-> (X1 = XTemp, Y1 = YTemp, (nth1(XTemp, YLine, dragonCave(Piece)) ; nth1(XTemp, YLine, Piece)))
+			-> (X1 = XTemp, Y1 = YTemp, nth1(XTemp, YLine, Piece))
 			; (print('The coordinates you inserted are not \''), print(DesiredOccupant), print('\'.\n'), get_desired_position_input(position(X1, Y1), GameBoard, DesiredOccupant, Piece))
 	).
 
@@ -210,8 +219,8 @@ game_loop(GameState) :-
 	apply_move(Move, GameState, TempGameState),
 	get_changed_pieces(Move, TempGameState, PiecesToRemove, PiecesToAdd),
 	update_player_piece_count(PiecesToRemove, TempGameState, TempGameState1),
-	apply_changed_pieces(PiecesToRemove, PiecesToAdd, TempGameState1, NextGameState),
-	%check_dragons(TempGameState2, NextGameState),
+	apply_changed_pieces(PiecesToRemove, PiecesToAdd, TempGameState1, TempGameState2),
+	check_dragons(TempGameState2, NextGameState),
 	(game_is_over(NextGameState) -> true ; game_loop(NextGameState)).
 
 play :-
