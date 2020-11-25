@@ -6,7 +6,7 @@ board([
 	[empty, empty, empty, empty, dice(black, 4), empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
-	[dragonCave, empty, empty, empty, dragonCave, empty, empty, empty, dragonCave],
+	[dragonCave(empty), empty, empty, empty, dragonCave(empty), empty, empty, empty, dragonCave(empty)],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
 	[empty, empty, empty, empty, dice(white, 4), empty, empty, empty, empty],
@@ -47,11 +47,19 @@ board([
 
 % establishes correspondence between each atom and the symbol to be displayed
 % symbol(+Atom, -Symbol)
-symbol(mountain, 'M').
-symbol(black, 'B').
-symbol(empty, ' ').
-symbol(white, 'W').
-symbol(dragonCave, 'D').
+symbol(mountain, 'M ').
+symbol(empty, '  ').
+
+symbol(dice(black, Value), Sym) :-
+  number_chars(Value, [ValueAtom|_]),
+  atom_concat('B', ValueAtom, Sym).
+
+symbol(dice(white, Value), Sym) :-
+  number_chars(Value, [ValueAtom|_]),
+  atom_concat('W', ValueAtom, Sym).
+
+symbol(dragonCave(empty), 'D ').
+symbol(dragonCave(Dice), Sym) :- symbol(Dice, Sym).
 
 %displays the board's grid intermediate elements
 display_board_middle_separator :-
@@ -67,21 +75,12 @@ display_board_top_separator :-
 display_board_bottom_separator :-
 	print('  \x2514\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2518\\n').
 
-
 display_board_row([], _).
-display_board_row([dice(Color, Value) | T], N) :-
-	(N \= -1 -> print(N); true),
-	symbol(Color, ColorValue),
-	print(' \x2502\ '),
-	print(ColorValue),
-	print(Value),
-	display_board_row(T, -1).
 display_board_row([Symbol | T], N) :-
 	(N \= -1 -> print(N); true),
 	symbol(Symbol, Value),
 	print(' \x2502\ '),
 	print(Value),
-	print(' '),
 	display_board_row(T, -1).
 
 %display all board elements

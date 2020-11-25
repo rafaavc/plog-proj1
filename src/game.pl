@@ -29,6 +29,22 @@ remove_pieces([piecePosition(position(X, Y), _)|PiecesT], CurrentBoard, NextBoar
 	updateBoardRow(Y, NewRow, CurrentBoard, TempBoard),
 	remove_pieces(PiecesT, TempBoard, NextBoard).
 
+% check_dragons(+GameState, -NextGameState)
+% Checks if dragon caves have been occupied.
+check_dragons(game_state(Player, npieces(WhiteCount, BlackCount), CurrentBoard), game_state(Player, npieces(WhiteCount, BlackCount), NextBoard)) :-
+	nth1(4, CurrentBoard, Row1),
+	nth1(5, CurrentBoard, Row2),
+	nth1(6, CurrentBoard, Row3),
+
+	%left dragon
+	nth1(1, Row1, dice(Piece1, _)),
+	nth1(2, Row2, dice(Piece2, _)),
+	nth1(1, Row3, dice(Piece3, _)),
+
+	(
+		(Piece1 == Piece2, Piece2 == Piece3) -> add_pieces([piecePosition(position(1, 5), dragonCave(dice(Piece1, 3)))], CurrentBoard, NextBoard)
+	).
+
 % apply user move
 % apply_move(+move, +GameState, -TempGameState)
 apply_move(move(MoveStartPosition, MoveEndPosition, Piece), game_state(Player, CurrentPieces, GameBoard), game_state(Player, CurrentPieces, TempBoard)):-
@@ -61,11 +77,10 @@ get_dice(dice(Piece, Strength), Piece, Strength).
 get_value_from_dice(Piece, Value, Strength) :-
 	(
 		(
-			Piece == empty ; Piece == dragonCave ; Piece == mountain
+			Piece == empty ; Piece == dragonCave(_) ; Piece == mountain
 		) -> Value = Piece, Strength = 0;
 		get_dice(Piece, Value, Strength)
-	)
-.
+	).
 
 get_opposite_type(black, white).
 get_opposite_type(white, black).
@@ -92,7 +107,7 @@ is_eaten(PiecePosition, GameBoard) :- is_eaten_horizontal(PiecePosition, GameBoa
 is_eaten(PiecePosition, GameBoard) :- is_eaten_vertical(PiecePosition, GameBoard).
 
 is_eaten_horizontal(piecePosition(Position, dice(Piece, _)), GameBoard) :-
-	Piece \= empty, Piece \= mountain, Piece \= dragonCave,
+	Piece \= empty, Piece \= mountain, Piece \= dragonCave(_),
 	getPieceWithXYOffset(Position, 1, 0, GameBoard, piecePosition(_, RightOfPieceDice)),
 	getPieceWithXYOffset(Position, -1, 0, GameBoard, piecePosition(_, LeftOfPieceDice)),
 	get_value_from_dice(RightOfPieceDice, RightOfPiece, _),
@@ -100,7 +115,7 @@ is_eaten_horizontal(piecePosition(Position, dice(Piece, _)), GameBoard) :-
 	(RightOfPiece \= empty, RightOfPiece \= Piece, LeftOfPiece \= empty, RightOfPiece \= Piece).
 
 is_eaten_vertical(piecePosition(Position, dice(Piece, _)), GameBoard) :-
-	Piece \= empty, Piece \= mountain, Piece \= dragonCave,
+	Piece \= empty, Piece \= mountain, Piece \= dragonCave(_),
 	getPieceWithXYOffset(Position, 0, 1, GameBoard, piecePosition(_, BottomOfPieceDice)),
 	getPieceWithXYOffset(Position, 0, -1, GameBoard, piecePosition(_, TopOfPieceDice)),
 	get_value_from_dice(BottomOfPieceDice, BottomOfPiece, _),
@@ -116,18 +131,29 @@ add_pieces_to_remove(GameBoard, [Hp|Tp], List, PiecesToRemove) :-
 		(add_pieces_to_remove(GameBoard, Tp, List, PiecesToRemove))
 	).
 
+%build_valid_list(+List, +Helper, -Ret)
+build_valid_list([], Helper, Ret):-
+	reverse(Helper, Ret).
+build_valid_list([H|T], Helper, Ret):-
+	(
+		ground(H) -> build_valid_list(T, [H|Helper], Ret);
+		build_valid_list(T, Helper, Ret)
+	).
+
 %get_pieces_diff(+Move, +GameState, -PiecesToAdd, -PiecesToRemove)
 get_changed_pieces(move(_, MoveEndPosition, Piece), game_state(_, _, GameBoard), PiecesToRemove, PiecesToAdd) :-
-	(getPieceWithXYOffset(MoveEndPosition, 1, 0, GameBoard, RightOfPiece);true),
-	(getPieceWithXYOffset(MoveEndPosition, -1, 0, GameBoard, LeftOfPiece);true),
-	(getPieceWithXYOffset(MoveEndPosition, 0, 1, GameBoard, BottomOfPiece);true),
-	(getPieceWithXYOffset(MoveEndPosition, 0, -1, GameBoard, TopOfPiece);true),
+	(getPieceWithXYOffset(MoveEndPosition, 1, 0, GameBoard, RightOfPiece) ;true),
+	(getPieceWithXYOffset(MoveEndPosition, -1, 0, GameBoard, LeftOfPiece) ;true),
+	(getPieceWithXYOffset(MoveEndPosition, 0, 1, GameBoard, BottomOfPiece) ;true),
+	(getPieceWithXYOffset(MoveEndPosition, 0, -1, GameBoard, TopOfPiece) ;true),
 
 	Remove = [],
 	add_pieces_to_remove(GameBoard, [RightOfPiece, LeftOfPiece, BottomOfPiece, TopOfPiece], Remove, TempPiecesToRemove),
 
+	build_valid_list([RightOfPiece, LeftOfPiece, BottomOfPiece, TopOfPiece], [], List),
+
 	%verify if eats and add to pieces to remove if not there already and add to pieces to add if eats
-	eats_by_strength(Piece, [RightOfPiece, LeftOfPiece, BottomOfPiece, TopOfPiece], TempPiecesToRemove, PiecesToRemove, PieceToAdd),
+	eats_by_strength(Piece, List, TempPiecesToRemove, PiecesToRemove, PieceToAdd),
 	(
 		ground(PieceToAdd) ->
 		PiecesToAdd = [piecePosition(MoveEndPosition, PieceToAdd)]; true
@@ -138,8 +164,8 @@ get_changed_pieces(move(_, MoveEndPosition, Piece), game_state(_, _, GameBoard),
 get_desired_position_input(position(X1, Y1), GameBoard, DesiredOccupant, Piece):-
 	get_position_input(position(XTemp, YTemp)),
 	(
-		(nth1(YTemp, GameBoard, YLine), (nth1(XTemp, YLine, dice(DesiredOccupant, _)); nth1(XTemp, YLine, DesiredOccupant)))
-			-> (X1 = XTemp, Y1 = YTemp, nth1(XTemp, YLine, Piece))
+		(nth1(YTemp, GameBoard, YLine), (nth1(XTemp, YLine, dragonCave(dice(DesiredOccupant, _))); nth1(XTemp, YLine, dice(DesiredOccupant, _)); nth1(XTemp, YLine, DesiredOccupant)))
+			-> (X1 = XTemp, Y1 = YTemp, (nth1(XTemp, YLine, dragonCave(Piece)) ; nth1(XTemp, YLine, Piece)))
 			; (print('The coordinates you inserted are not \''), print(DesiredOccupant), print('\'.\n'), get_desired_position_input(position(X1, Y1), GameBoard, DesiredOccupant, Piece))
 	).
 
@@ -185,6 +211,7 @@ game_loop(GameState) :-
 	get_changed_pieces(Move, TempGameState, PiecesToRemove, PiecesToAdd),
 	update_player_piece_count(PiecesToRemove, TempGameState, TempGameState1),
 	apply_changed_pieces(PiecesToRemove, PiecesToAdd, TempGameState1, NextGameState),
+	%check_dragons(TempGameState2, NextGameState),
 	(game_is_over(NextGameState) -> true ; game_loop(NextGameState)).
 
 play :-
