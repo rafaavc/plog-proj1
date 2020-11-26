@@ -59,6 +59,7 @@ symbol(dice(white, Value), Sym) :-
   atom_concat('W', ValueAtom, Sym).
 
 symbol(dragonCave(empty), 'D ').
+symbol(dragonCave(invoked), 'DI').
 symbol(dragonCave(Dice), Sym) :- symbol(Dice, Sym).
 
 %displays the board's grid intermediate elements
