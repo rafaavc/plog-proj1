@@ -2,7 +2,7 @@
 :- consult('board.pl').
 :- consult('input.pl').
 :- consult('menus.pl').
-%:- consult('bots.pl').
+:- consult('bots.pl').
 
 % initial(-GameState)
 initial(game_state(white, npieces(8, 8), Board)) :- board(Board).
@@ -18,11 +18,8 @@ updateBoardRow(Index, NewRow, Board, NewBoard) :-
 %
 add_pieces([], NextBoard, NextBoard).
 add_pieces([piecePosition(position(X, Y), Piece)|PiecesT], CurrentBoard, TempBoard) :-
-	Piece =.. [Type, DragonPiece|_],
 	nth1(Y, CurrentBoard, Row),
-	(Type = dragonCave -> 
-	updateBoardColumn(X, DragonPiece, Row, NewRow) ;
-	updateBoardColumn(X, Piece, Row, NewRow)),
+	updateBoardColumn(X, Piece, Row, NewRow),
 	updateBoardRow(Y, NewRow, CurrentBoard, TempBoard),
 	add_pieces(PiecesT, TempBoard, TempBoard).
 
@@ -33,8 +30,7 @@ cavePosition(Position) :-
 
 %
 remove_pieces([], NextBoard, NextBoard).
-remove_pieces([piecePosition(position(X, Y), Piece)|PiecesT], CurrentBoard, NextBoard) :-
-	%Piece =.. [Type|_],
+remove_pieces([piecePosition(position(X, Y), _)|PiecesT], CurrentBoard, NextBoard) :-
 	nth1(Y, CurrentBoard, Row),
 	(cavePosition(position(X, Y)) -> 
 	updateBoardColumn(X, dragonCave(invoked), Row, NewRow) ;
@@ -50,7 +46,7 @@ invoke_dragon(position(X, Y), Strength, GameBoard, [piecePosition(_, Dice)|[]], 
 	get_value_from_dice(Dice, Value, _),
 	get_value_from_dice(PreviousDice, PreviousValue, _),
 	(
-		(Value = PreviousValue, Value \= empty, Dragon = dragonCave(empty)) -> List = [piecePosition(position(X, Y), dragonCave(dice(Value, Strength)))] ; List = []
+		(Value = PreviousValue, Value \= empty, Dragon = dragonCave(empty)) -> List = [piecePosition(position(X, Y), dice(Value, Strength))] ; List = []
 	).
 invoke_dragon(position(X, Y), Strength, GameBoard, [piecePosition(_, Dice)|T], piecePosition(_, PreviousDice), List) :-
 	nth1(Y, GameBoard, Row),
@@ -82,6 +78,10 @@ verify_dragon_cave(Position, Strength, GameBoard, Current, Next):-
 		true
 	).
 
+verify_new_pieces([], NewWhiteCount, NewBlackCount, NewWhiteCount, NewBlackCount).
+/*verify_new_pieces([H|T], WhiteCount, BlackCount, NewWhiteCount, NewBlackCount) :-
+
+.*/
 
 % check_dragons(+GameState, -NextGameState)
 % Checks if dragon caves have been occupied.
@@ -89,6 +89,11 @@ check_dragons(game_state(Player, npieces(WhiteCount, BlackCount), CurrentBoard),
 	verify_dragon_cave(position(1, 5), 3, CurrentBoard, [], Dragons1),
 	verify_dragon_cave(position(5, 5), 5, CurrentBoard, Dragons1, Dragons2),
 	verify_dragon_cave(position(9, 5), 3, CurrentBoard, Dragons2, Dragons),
+	
+	/*
+	verify_new_pieces(Dragons, 0, 0, TempWhiteCount, TempBlackCount),
+	NewWhiteCount is TempWhiteCount + WhiteCount,
+	NewBlackCount is TemoWhiteCount + BlackCount,*/
 
 	add_pieces(Dragons, CurrentBoard, NextBoard).
 
@@ -211,7 +216,7 @@ get_changed_pieces(move(_, MoveEndPosition, Piece), game_state(_, _, GameBoard),
 get_desired_position_input(position(X1, Y1), GameBoard, DesiredOccupant, Piece):-
 	get_position_input(position(XTemp, YTemp)),
 	(
-		(nth1(YTemp, GameBoard, YLine), (nth1(XTemp, YLine, dragonCave(dice(DesiredOccupant, _))); nth1(XTemp, YLine, dice(DesiredOccupant, _)); nth1(XTemp, YLine, DesiredOccupant)))
+		(nth1(YTemp, GameBoard, YLine), (nth1(XTemp, YLine, dice(DesiredOccupant, _)); nth1(XTemp, YLine, DesiredOccupant)))
 			-> (X1 = XTemp, Y1 = YTemp, nth1(XTemp, YLine, Piece))
 			; (print('The coordinates you inserted are not \''), print(DesiredOccupant), print('\'.\n'), get_desired_position_input(position(X1, Y1), GameBoard, DesiredOccupant, Piece))
 	).
@@ -250,25 +255,47 @@ game_is_over(game_state(_, npieces(WhiteCount, BlackCount), _)) :-
 
 current_player(game_state(CurrPlayer, _, _), Player) :- Player = CurrPlayer.
 
-% The C arg is just a counter to simulate the game end (Ends when C == 3)
-% In reality, the game ends when one of the players only has one piece, and the winner is the other
-% game_loop(+GameState, +Player, +C)
-game_loop(GameState) :-
-	current_player(GameState, Player),
-	valid_moves(GameState, Player, _),
 
+player_play(GameState, NextGameState) :-
+	current_player(GameState, Player),
 	display_game(GameState),
 	get_move(Move, GameState),
 	apply_move(Move, GameState, TempGameState),
 	get_changed_pieces(Move, TempGameState, PiecesToRemove, PiecesToAdd),
 	update_player_piece_count(PiecesToRemove, TempGameState, TempGameState1),
 	apply_changed_pieces(PiecesToRemove, PiecesToAdd, TempGameState1, TempGameState2),
-	check_dragons(TempGameState2, NextGameState),
-	(game_is_over(NextGameState) -> true ; game_loop(NextGameState)).
+	check_dragons(TempGameState2, NextGameState).
+
+computer_play(GameState, Dfficulty, NextGameState) :-
+	current_player(GameState, Player),
+	display_game(GameState),
+	choose_move(GameState, Player, Difficulty, Move),
+	apply_move(Move, GameState, TempGameState),
+	get_changed_pieces(Move, TempGameState, PiecesToRemove, PiecesToAdd),
+	update_player_piece_count(PiecesToRemove, TempGameState, TempGameState1),
+	apply_changed_pieces(PiecesToRemove, PiecesToAdd, TempGameState1, TempGameState2),
+	check_dragons(TempGameState2, NextGameState).
+
+% game_loop(+GameState, +Player, +C)
+game_loop_PvP(GameState) :-
+	player_play(GameState, NextGameState), !,
+	(game_is_over(NextGameState) -> true ; game_loop_PvP(NextGameState)).
+
+game_loop_PvM(GameState, Difficulty) :- game_loop_PvM(GameState, Difficulty, player).
+game_loop_PvM(GameState, Difficulty, player) :-
+	player_play(GameState, NextGameState), !,
+	(game_is_over(NextGameState) -> true ; game_loop_PvM(NextGameState, Difficulty, computer)).
+game_loop_PvM(GameState, Difficulty, computer) :-
+	computer_play(GameState, Dfficulty, NextGameState), !,
+	(game_is_over(NextGameState) -> true ; game_loop_PvM(NextGameState, Difficulty, player)).
 
 start_PvP_game :-
 	initial(GameState),
-	game_loop(GameState).
+	game_loop_PvP(GameState).
+
+start_PvM_game :-
+	initial(GameState),
+	game_loop_PvM(GameState, easy).
 
 play :- main_menu.
 

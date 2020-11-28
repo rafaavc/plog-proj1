@@ -1,7 +1,7 @@
 
 router(WhereTo) :-
     (WhereTo = 1 -> start_PvP_game ; (
-        WhereTo = 2 -> true ; (
+        WhereTo = 2 -> start_PvM_game ; (
             WhereTo = 3 -> true ; (
                 WhereTo = 4 -> true ; print('Don\'t know how you got here...\n')
             )

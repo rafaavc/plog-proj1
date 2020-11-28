@@ -29,9 +29,9 @@ choose_move_easy(PossibleMoves, Move) :-
 choose_move(GameState, Player, Level, Move) :-
     valid_moves(GameState, Player, PossibleMoves),
     (Level = easy -> choose_move_easy(PossibleMoves, Move) ; (
-        Level = medium -> true; choose_move_medium(GameState, Player, PossibleMoves, Move) ; (
-            Level = hard -> true; choose_move_hard(GameState, Player, PossibleMoves, Move) ; print('Invalid level \''), print(Level), print('\'!\n')
+        Level = medium -> true; /*choose_move_medium(GameState, Player, PossibleMoves, Move) ;*/ (
+            Level = hard -> true; /*choose_move_hard(GameState, Player, PossibleMoves, Move) ;*/ print('Invalid difficulty \''), print(Level), print('\'!\n')
         )
-    )
+    ))
 .
 
