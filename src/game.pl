@@ -78,10 +78,19 @@ verify_dragon_cave(Position, Strength, GameBoard, Current, Next):-
 		true
 	).
 
+% verify_new_pieces(+PiecesToRemove, +CurrentWhiteCount, +CurrentBlackCount, -NewWhiteCount, -NewBlackCount)
+% verifies if there are new dragons to update players piece count
 verify_new_pieces([], NewWhiteCount, NewBlackCount, NewWhiteCount, NewBlackCount).
-/*verify_new_pieces([H|T], WhiteCount, BlackCount, NewWhiteCount, NewBlackCount) :-
-
-.*/
+verify_new_pieces([H|T], WhiteCount, BlackCount, NewWhiteCount, NewBlackCount) :-
+	H =.. [Color|_],
+	Color = white,
+	WhiteCount1 is WhiteCount + 1,
+	verify_new_pieces(T, WhiteCount1, BlackCount, NewWhiteCount, NewBlackCount).
+verify_new_pieces([H|T], WhiteCount, BlackCount, NewWhiteCount, NewBlackCount) :-
+	H =.. [Color|_],
+	Color = black,
+	BlackCount1 is BlackCount + 1,
+	verify_new_pieces(T, WhiteCount, BlackCount1, NewWhiteCount, NewBlackCount).
 
 % check_dragons(+GameState, -NextGameState)
 % Checks if dragon caves have been occupied.
@@ -90,10 +99,9 @@ check_dragons(game_state(Player, npieces(WhiteCount, BlackCount), CurrentBoard),
 	verify_dragon_cave(position(5, 5), 5, CurrentBoard, Dragons1, Dragons2),
 	verify_dragon_cave(position(9, 5), 3, CurrentBoard, Dragons2, Dragons),
 	
-	/*
 	verify_new_pieces(Dragons, 0, 0, TempWhiteCount, TempBlackCount),
 	NewWhiteCount is TempWhiteCount + WhiteCount,
-	NewBlackCount is TemoWhiteCount + BlackCount,*/
+	NewBlackCount is TemoWhiteCount + BlackCount,
 
 	add_pieces(Dragons, CurrentBoard, NextBoard).
 
@@ -164,7 +172,7 @@ is_eaten_horizontal(piecePosition(Position, dice(Piece, _)), GameBoard) :-
 	getPieceWithXYOffset(Position, -1, 0, GameBoard, piecePosition(_, LeftOfPieceDice)),
 	get_value_from_dice(RightOfPieceDice, RightOfPiece, _),
 	get_value_from_dice(LeftOfPieceDice, LeftOfPiece, _),
-	(RightOfPiece \= empty, RightOfPiece \= Piece, LeftOfPiece \= empty, RightOfPiece \= Piece).
+	(RightOfPiece \= empty, RightOfPiece \= Piece, LeftOfPiece \= empty, LeftOfPiece \= Piece).
 
 is_eaten_vertical(piecePosition(Position, dice(Piece, _)), GameBoard) :-
 	Piece \= empty, Piece \= mountain, Piece \= dragonCave(_),
@@ -248,9 +256,11 @@ update_player_piece_count(PiecesToRemove, game_state(black, npieces(WhiteCount, 
 	length(PiecesToRemove, RemovedAmount),
 	NextWhiteCount is WhiteCount - RemovedAmount.
 
-game_is_over(game_state(_, npieces(WhiteCount, BlackCount), _)) :-
+game_is_over(GameState) :-
+	GameState =.. [_, _, npieces(WhiteCount, BlackCount), _],
 	((WhiteCount =:= 1 -> Winner = black ; false);
 	(BlackCount =:= 1 -> Winner = white ; false)),
+	display_game(GameState),
 	print('The game is over! The winners are the \''), print(Winner), print('\' pieces!').
 
 current_player(game_state(CurrPlayer, _, _), Player) :- Player = CurrPlayer.
@@ -286,16 +296,26 @@ game_loop_PvM(GameState, Difficulty, player) :-
 	player_play(GameState, NextGameState), !,
 	(game_is_over(NextGameState) -> true ; game_loop_PvM(NextGameState, Difficulty, computer)).
 game_loop_PvM(GameState, Difficulty, computer) :-
+	write('Press ENTER for the computer move.\n'),
+	read_line(_),
 	computer_play(GameState, Dfficulty, NextGameState), !,
 	(game_is_over(NextGameState) -> true ; game_loop_PvM(NextGameState, Difficulty, player)).
+
+game_loop_MvM(GameState, Difficulty) :-
+	computer_play(GameState, Dfficulty, NextGameState), !,
+	(game_is_over(NextGameState) -> true ; game_loop_MvM(NextGameState, Difficulty)).
 
 start_PvP_game :-
 	initial(GameState),
 	game_loop_PvP(GameState).
 
-start_PvM_game :-
+start_PvM_game(Difficulty) :-
 	initial(GameState),
-	game_loop_PvM(GameState, easy).
+	game_loop_PvM(GameState, Difficulty).
+
+start_MvM_game(Difficulty) :-
+	initial(GameState),
+	game_loop_MvM(GameState, Difficulty).
 
 play :- main_menu.
 
