@@ -2,15 +2,15 @@
 
 % board(-Board)
 board([
-	[mountain, black, black, black, black, black, black, black, mountain],
-	[empty, empty, empty, empty, black, empty, empty, empty, empty],
+	[mountain, dice(black, 3), dice(black, 2), dice(black, 2), dice(black, 2), dice(black, 2), dice(black, 2), dice(black, 3), mountain],
+	[empty, empty, empty, empty, dice(black, 4), empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
-	[dragonCave, empty, empty, empty, dragonCave, empty, empty, empty, dragonCave],
+	[dragonCave(empty), empty, empty, empty, dragonCave(empty), empty, empty, empty, dragonCave(empty)],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
-	[empty, empty, empty, empty, white, empty, empty, empty, empty],
-	[mountain, white, white, white, white, white, white, white, mountain]
+	[empty, empty, empty, empty, dice(white, 4), empty, empty, empty, empty],
+	[mountain, dice(white, 3), dice(white, 2), dice(white, 2), dice(white, 2), dice(white, 2), dice(white, 2), dice(white, 3), mountain]
 ]).
 
 /*
@@ -47,31 +47,38 @@ board([
 
 % establishes correspondence between each atom and the symbol to be displayed
 % symbol(+Atom, -Symbol)
-symbol(mountain, 'M').
-symbol(black, 'B').
-symbol(empty, ' ').
-symbol(white, 'W').
-symbol(dragonCave, 'D').
+symbol(mountain, 'M ').
+symbol(empty, '  ').
+
+symbol(dice(black, Value), Sym) :-
+  number_chars(Value, [ValueAtom|_]),
+  atom_concat('B', ValueAtom, Sym).
+
+symbol(dice(white, Value), Sym) :-
+  number_chars(Value, [ValueAtom|_]),
+  atom_concat('W', ValueAtom, Sym).
+
+symbol(dragonCave(empty), 'D ').
+symbol(dragonCave(invoked), 'DI').
 
 %displays the board's grid intermediate elements
 display_board_middle_separator :-
-	print('  \x251C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2524\\n').
+	print('  \x251C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x253C\\x2500\\x2500\\x2500\\x2500\\x2524\\n').
 
 %displays the board's grid top line
 display_board_top_separator :-
-	print('    A   B   C   D   E   F   G   H   I\n'),
-	print('  \x250C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2510\ '),
+	print('    A    B    C    D    E    F    G    H    I\n'),
+	print('  \x250C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x252C\\x2500\\x2500\\x2500\\x2500\\x2510\ '),
 	nl.	
 
 %displays the board's grid bottom line
 display_board_bottom_separator :-
-	print('  \x2514\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2518\\n').
-
+	print('  \x2514\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2534\\x2500\\x2500\\x2500\\x2500\\x2518\\n').
 
 display_board_row([], _).
-display_board_row([H | T], N) :-
+display_board_row([Symbol | T], N) :-
 	(N \= -1 -> print(N); true),
-	symbol(H, Value),
+	symbol(Symbol, Value),
 	print(' \x2502\ '),
 	print(Value),
 	display_board_row(T, -1).
