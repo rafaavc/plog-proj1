@@ -157,32 +157,34 @@ eats_by_strength(dice(Piece, Strength), [piecePosition(Position, Dice)|T], TempP
 
 % Checks if a piece is eaten
 % is_eaten(+PiecePosition, +GameBoard)
-is_eaten(Player, PiecePosition, GameBoard) :- is_eaten_horizontal(Player, PiecePosition, GameBoard).
-is_eaten(Player, PiecePosition, GameBoard) :- is_eaten_vertical(Player, PiecePosition, GameBoard).
+is_eaten(PlayerPiecePosition, PiecePosition, GameBoard) :- is_eaten_horizontal(PlayerPiecePosition, PiecePosition, GameBoard).
+is_eaten(PlayerPiecePosition, PiecePosition, GameBoard) :- is_eaten_vertical(PlayerPiecePosition, PiecePosition, GameBoard).
 
-is_eaten_horizontal(Player, piecePosition(Position, dice(Piece, _)), GameBoard) :-
+is_eaten_horizontal(PlayerPiecePosition, piecePosition(Position, dice(Piece, _)), GameBoard) :-
 	Piece \= empty, Piece \= mountain, Piece \= dragonCave(_),
-	getPieceWithXYOffset(Position, 1, 0, GameBoard, piecePosition(_, RightOfPieceDice)),
-	getPieceWithXYOffset(Position, -1, 0, GameBoard, piecePosition(_, LeftOfPieceDice)),
+	getPieceWithXYOffset(Position, 1, 0, GameBoard, piecePosition(RightOfPiecePosition, RightOfPieceDice)),
+	getPieceWithXYOffset(Position, -1, 0, GameBoard, piecePosition(LeftOfPiecePosition, LeftOfPieceDice)),
+	(PlayerPiecePosition = RightOfPiecePosition ; PlayerPiecePosition = LeftOfPiecePosition),
 	get_value_from_dice(RightOfPieceDice, RightOfPiece, _),
 	get_value_from_dice(LeftOfPieceDice, LeftOfPiece, _),
-	(RightOfPiece \= empty, RightOfPiece \= Piece, LeftOfPiece \= empty, LeftOfPiece \= Piece, (Player = RightOfPiece ; Player = LeftOfPiece)).
+	(RightOfPiece \= empty, RightOfPiece \= Piece, LeftOfPiece \= empty, LeftOfPiece \= Piece).
 
-is_eaten_vertical(Player, piecePosition(Position, dice(Piece, _)), GameBoard) :-
+is_eaten_vertical(PlayerPiecePosition, piecePosition(Position, dice(Piece, _)), GameBoard) :-
 	Piece \= empty, Piece \= mountain, Piece \= dragonCave(_),
-	getPieceWithXYOffset(Position, 0, 1, GameBoard, piecePosition(_, BottomOfPieceDice)),
-	getPieceWithXYOffset(Position, 0, -1, GameBoard, piecePosition(_, TopOfPieceDice)),
+	getPieceWithXYOffset(Position, 0, 1, GameBoard, piecePosition(BottomOfPiecePosition, BottomOfPieceDice)),
+	getPieceWithXYOffset(Position, 0, -1, GameBoard, piecePosition(TopOfPiecePosition, TopOfPieceDice)),
+	(PlayerPiecePosition = BottomOfPiecePosition ; PlayerPiecePosition = TopOfPiecePosition),
 	get_value_from_dice(BottomOfPieceDice, BottomOfPiece, _),
 	get_value_from_dice(TopOfPieceDice, TopOfPiece, _),
-	(BottomOfPiece \= empty, BottomOfPiece \= Piece, TopOfPiece \= empty, TopOfPiece \= Piece, (Player = BottomOfPiece ; Player = TopOfPiece)).
+	(BottomOfPiece \= empty, BottomOfPiece \= Piece, TopOfPiece \= empty, TopOfPiece \= Piece).
 
 % Adds pieces to list containing pieces to remove from the board
 % custodial_capture(+GameBoard, +Pieces, +Remove, -PiecesToRemove)
-custodial_capture(_, [], List, List).
-custodial_capture(game_state(Player, _, GameBoard), [PiecePosition|PPT], List, PiecesToRemove) :-
+custodial_capture(_, _, [], List, List).
+custodial_capture(game_state(Player, _, GameBoard), PlayerPiecePosition, [PiecePosition|PPT], List, PiecesToRemove) :-
 	(
-		ground(PiecePosition), PiecePosition =.. [_, _, dice(Piece, _)], is_eaten(Player, PiecePosition, GameBoard) -> (custodial_capture(game_state(Player, _, GameBoard), PPT, [PiecePosition|List], PiecesToRemove));
-		(custodial_capture(game_state(Player, _, GameBoard), PPT, List, PiecesToRemove))
+		ground(PiecePosition), PiecePosition =.. [_, _, dice(Piece, _)], is_eaten(PlayerPiecePosition, PiecePosition, GameBoard) -> (custodial_capture(game_state(Player, _, GameBoard), PlayerPiecePosition, PPT, [PiecePosition|List], PiecesToRemove));
+		(custodial_capture(game_state(Player, _, GameBoard), PlayerPiecePosition, PPT, List, PiecesToRemove))
 	).
 
 %build_valid_list(+List, +Helper, -Ret)
@@ -202,7 +204,7 @@ get_changed_pieces(move(_, MoveEndPosition, Piece), game_state(Player, _, GameBo
 	(getPieceWithXYOffset(MoveEndPosition, 0, -1, GameBoard, TopOfPiece) ;true),
 
 	Remove = [],
-	custodial_capture(game_state(Player, _, GameBoard), [RightOfPiece, LeftOfPiece, BottomOfPiece, TopOfPiece], Remove, TempPiecesToRemove),
+	custodial_capture(game_state(Player, _, GameBoard), MoveEndPosition, [RightOfPiece, LeftOfPiece, BottomOfPiece, TopOfPiece], Remove, TempPiecesToRemove),
 
 	build_valid_list([RightOfPiece, LeftOfPiece, BottomOfPiece, TopOfPiece], [], List),
 
