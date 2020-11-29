@@ -135,8 +135,8 @@ get_dice(dice(Piece, Strength), Piece, Strength).
 get_value_from_dice(Piece, Value, Strength) :-
 	(
 		(
-			Piece == empty ; Piece == dragonCave(empty) ; Piece == mountain
-		) -> Value = Piece, Strength = 0;
+			Piece = empty ; Piece = dragonCave(empty) ; Piece = dragonCave(invoked) ; Piece = mountain
+		) -> (Value = Piece, Strength = 0);
 		get_dice(Piece, Value, Strength)
 	).
 
