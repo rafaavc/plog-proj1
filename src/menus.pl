@@ -7,6 +7,9 @@ router(WhereTo) :-
         )
     )).
 
+wait_for_user_input :-
+	read_line(_).
+
 difficulty(1, easy).
 difficulty(2, medium).
 difficulty(3, hard).
@@ -26,7 +29,7 @@ difficulty_menu(Difficulty) :-
     print('[3] Hard\n'),
     print('Choose your option: '),
     get_digit_input(1, 3, Digit),
-    difficulty(Digit, Difficulty).
+    difficulty(Digit, Difficulty). 
 
 print_horizontal_line(0).
 print_horizontal_line(Size) :-

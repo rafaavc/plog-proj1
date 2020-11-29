@@ -1,4 +1,4 @@
-
+:- consult('utils.pl').
 :- consult('board.pl').
 :- consult('input.pl').
 :- consult('menus.pl').
@@ -71,8 +71,8 @@ verify_dragon_cave(Position, Strength, GameBoard, Current, Next):-
 	(
 		(L \= []) ->
 		(
-			head(L, H), tail(L, T),
-			invoke_dragon(Position, Strength, GameBoard, T, H, List),
+			head(L, FirstPosition), tail(L, Positions),
+			invoke_dragon(Position, Strength, GameBoard, Positions, FirstPosition, List),
 			append(Current, List, Next)
 		);
 		true
@@ -183,7 +183,7 @@ is_eaten_vertical(PlayerPiecePosition, piecePosition(Position, dice(Piece, _)), 
 custodial_capture(_, _, [], List, List).
 custodial_capture(game_state(Player, _, GameBoard), PlayerPiecePosition, [PiecePosition|PPT], List, PiecesToRemove) :-
 	(
-		ground(PiecePosition), PiecePosition =.. [_, _, dice(Piece, _)], is_eaten(PlayerPiecePosition, PiecePosition, GameBoard) -> (custodial_capture(game_state(Player, _, GameBoard), PlayerPiecePosition, PPT, [PiecePosition|List], PiecesToRemove));
+		ground(PiecePosition), is_eaten(PlayerPiecePosition, PiecePosition, GameBoard) -> (custodial_capture(game_state(Player, _, GameBoard), PlayerPiecePosition, PPT, [PiecePosition|List], PiecesToRemove));
 		(custodial_capture(game_state(Player, _, GameBoard), PlayerPiecePosition, PPT, List, PiecesToRemove))
 	).
 
@@ -203,8 +203,8 @@ get_changed_pieces(move(_, MoveEndPosition, Piece), game_state(Player, _, GameBo
 	(getPieceWithXYOffset(MoveEndPosition, 0, 1, GameBoard, BottomOfPiece) ;true),
 	(getPieceWithXYOffset(MoveEndPosition, 0, -1, GameBoard, TopOfPiece) ;true),
 
-	Remove = [],
-	custodial_capture(game_state(Player, _, GameBoard), MoveEndPosition, [RightOfPiece, LeftOfPiece, BottomOfPiece, TopOfPiece], Remove, TempPiecesToRemove),
+	%Remove = [],
+	custodial_capture(game_state(Player, _, GameBoard), MoveEndPosition, [RightOfPiece, LeftOfPiece, BottomOfPiece, TopOfPiece], [], TempPiecesToRemove),
 
 	build_valid_list([RightOfPiece, LeftOfPiece, BottomOfPiece, TopOfPiece], [], List),
 
@@ -270,7 +270,6 @@ current_player(game_state(CurrPlayer, _, _), Player) :- Player = CurrPlayer.
 
 
 player_play(GameState, NextGameState) :-
-	current_player(GameState, Player),
 	display_game(GameState),
 	get_move(Move, GameState),
 	apply_move(Move, GameState, TempGameState),
@@ -279,7 +278,7 @@ player_play(GameState, NextGameState) :-
 	apply_changed_pieces(PiecesToRemove, PiecesToAdd, TempGameState1, TempGameState2),
 	check_dragons(TempGameState2, NextGameState).
 
-computer_play(GameState, Dfficulty, NextGameState) :-
+computer_play(GameState, Difficulty, NextGameState) :-
 	current_player(GameState, Player),
 	display_game(GameState),
 	choose_move(GameState, Player, Difficulty, Move),
@@ -300,12 +299,12 @@ game_loop_PvM(GameState, Difficulty, player) :-
 	(game_is_over(NextGameState) -> true ; game_loop_PvM(NextGameState, Difficulty, computer)).
 game_loop_PvM(GameState, Difficulty, computer) :-
 	write('Press ENTER for the computer move.\n'),
-	read_line(_),
-	computer_play(GameState, Dfficulty, NextGameState), !,
+	wait_for_user_input,
+	computer_play(GameState, Difficulty, NextGameState), !,
 	(game_is_over(NextGameState) -> true ; game_loop_PvM(NextGameState, Difficulty, player)).
 
 game_loop_MvM(GameState, Difficulty) :-
-	computer_play(GameState, Dfficulty, NextGameState), !,
+	computer_play(GameState, Difficulty, NextGameState), !,
 	(game_is_over(NextGameState) -> true ; game_loop_MvM(NextGameState, Difficulty)).
 
 start_PvP_game :-
