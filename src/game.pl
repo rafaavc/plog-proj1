@@ -298,13 +298,13 @@ game_loop_PvM(GameState, Difficulty, player) :-
 	player_play(GameState, NextGameState), !,
 	(game_is_over(NextGameState) -> true ; game_loop_PvM(NextGameState, Difficulty, computer)).
 game_loop_PvM(GameState, Difficulty, computer) :-
-	write('Press ENTER for the computer move.\n'),
 	wait_for_user_input,
 	computer_play(GameState, Difficulty, NextGameState), !,
 	(game_is_over(NextGameState) -> true ; game_loop_PvM(NextGameState, Difficulty, player)).
 
 game_loop_MvM(GameState, Difficulty) :-
 	computer_play(GameState, Difficulty, NextGameState), !,
+	wait_for_user_input,
 	(game_is_over(NextGameState) -> true ; game_loop_MvM(NextGameState, Difficulty)).
 
 start_PvP_game :-

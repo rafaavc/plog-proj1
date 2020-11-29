@@ -20,7 +20,8 @@ valid_moves(game_state(_, _, GameBoard), Player, ListOfMoves) :-
         nth1(Y, GameBoard, Line),
         nth1(X, Line, dice(Player, N))
     ), PlayersPieces),
-    valid_moves_from_pieces(GameBoard, PlayersPieces, [], ListOfMoves).
+    valid_moves_from_pieces(GameBoard, PlayersPieces, [], ListOfMovesTemp),
+    random_permutation(ListOfMovesTemp, ListOfMoves).
 
 choose_move_easy(PossibleMoves, Move) :-
     random_member(Move, PossibleMoves).
@@ -56,28 +57,30 @@ available_blank_orthogonal_spots(Player, GameBoard, PiecePosition, N) :-
     %print('L: '), print(L), nl, print('PiecePosition: '), print(PiecePosition), nl,
     count(empty, L, N).
 
+is_next_to_dragon(position(X, Y), position(DragonX, DragonY)) :-
+    (Y = 5 -> ( X = 2 ; X = 4 ; X = 6 ; X = 8) ;
+    ((Y = 6 ; Y = 4) -> (X = 1 ; X = 5 ; X = 9) ; fail)),
+    (
+        ((X = 2; X = 1), DragonX = 1, DragonY = 5) 
+        ; 
+        ((X = 4 ; X = 5; X = 6), DragonX = 5, DragonY = 5) 
+        ; 
+        ((X = 8; X = 9), DragonX = 9, DragonY = 5)
+    ).
+
 can_make_dragon(_Player, _GameState, [], _Move) :- !, fail.
 can_make_dragon(Player, game_state(_Player, _NPieces, GameBoard), [move(position(X1, Y1), position(X2, Y2), Piece)|_MovesT], Move) :-
-    % verifies that the end position is beside a dragon
-    (Y2 = 5 -> ( X2 = 2 ; X2 = 4 ; X2 = 6 ; X2 = 8) ;
-    ((Y2 = 6 ; Y2 = 4) -> (X2 = 1 ; X2 = 5 ; X2 = 9) ; fail)),
-    % finds the destination dragon
-    (
-        ((X2 = 2; X2 = 1), DragonX = 1, DragonY = 5) 
-        ; 
-        ((X2 = 4 ; X2 = 5; X2 = 6), DragonX = 5, DragonY = 5) 
-        ; 
-        ((X2 = 8; X2 = 9), DragonX = 9, DragonY = 5)
-    ),
-    ((X1 =:= DragonX-1 ; X1 =:= DragonX+1) -> Y1 \= DragonY; (X1 = DragonX -> (Y1 =\= DragonY+1, Y1 =\= DragonY-1) ; true)),    % checks that the piece to move doesn't affect the destination dragon
+    % verifies that the end position is beside a dragon and finds the destination dragon
+    is_next_to_dragon(position(X2, Y2), position(DragonX, DragonY)),
+    % checks that the piece to move doesn't affect the destination dragon
+    ((X1 =:= DragonX-1 ; X1 =:= DragonX+1) -> Y1 \= DragonY; (X1 = DragonX -> (Y1 =\= DragonY+1, Y1 =\= DragonY-1) ; true)),    
 
     %print('Dragon: '), print(DragonX), print(' '), print(DragonY), nl,
 	nth1(DragonY, GameBoard, Row),
-	nth1(DragonX, Row, DragonPiece),
-    DragonPiece = dragonCave(empty),
+	nth1(DragonX, Row, dragonCave(empty)),
     available_blank_orthogonal_spots(Player, GameBoard, position(DragonX, DragonY), N),
     N = 1, !,
-    Move = move(position(X1, Y1), position(X2, Y2), Piece), print('Can make dragon!\n'), wait_for_user_input.
+    Move = move(position(X1, Y1), position(X2, Y2), Piece), print('Can make dragon!\n').
 can_make_dragon(Player, GameState, [_MovesH|MovesT], Move) :-
     can_make_dragon(Player, GameState, MovesT, Move).
 
@@ -124,7 +127,7 @@ can_capture_custodial(game_state(_Player, _Npieces, GameBoard), [Move|_MovesT], 
     %print(MoveStartPosition), nl,
     %print(MoveEndPosition), nl,
     %print(Piece), nl,
-    print('Can capture by custodial!\n'), wait_for_user_input,
+    print('Can capture by custodial!\n'),
     OutMove = Move.
 
 can_capture_custodial(game_state(_Player, _Npieces, GameBoard), [_MovesH|MovesT], Move) :-
@@ -143,7 +146,7 @@ can_capture_by_power(_GameState, [], _Move) :- !, fail.
 can_capture_by_power(game_state(_Player, _NPieces, GameBoard), [move(StartPosition, EndPosition, Piece)|_MovesT], Move) :-
     get_pieces_orthogonal_to_position(EndPosition, GameBoard, PiecesNextToEnd),
     piece_can_capture_by_power(Piece, PiecesNextToEnd), !,
-    Move = move(StartPosition, EndPosition, Piece), print('Can capture by power!\n'), wait_for_user_input.
+    Move = move(StartPosition, EndPosition, Piece), print('Can capture by power!\n').
 can_capture_by_power(GameState, [_MovesH|MovesT], Move) :-
     can_capture_by_power(GameState, MovesT, Move).
 
@@ -162,69 +165,46 @@ choose_move_medium(_GameState, _Player, PossibleMoves, Move) :-
     random_member(Move, PossibleMoves), !.
 
 
-count_pieces_with_type_in_direction(GameBoard, OffenderType, position(X, Y), Offset, Count) :-
-    count_pieces_with_type_in_direction(GameBoard, OffenderType, position(X, Y), Offset, Count, -1).
-count_pieces_with_type_in_direction(GameBoard, OffenderType, position(X, Y), xyOffset(XOffsetTemp, _YOffsetTemp), Count, Strength) :-
-    XOffsetTemp = 0 -> (XOffset = 0, YOffset = 1, StartX = X, StartY = 1) ; (XOffset = 1 , YOffset = 0, StartX = 1, StartY = Y),
-    count_pieces_with_type_in_direction_helper(GameBoard, OffenderType, position(StartX, StartY), xyOffset(XOffset, YOffset), Count, Strength).
 
-count_pieces_with_type_in_direction_helper(_GameBoard, _OffenderType, position(X, Y), _Offset, Count, _Strength) :-
-    (X < 1; X > 9; Y < 1; Y > 9), Count = 0,
-    print('FINALIZER\n').
-count_pieces_with_type_in_direction_helper(GameBoard, OffenderType, position(X, Y), Offset, Count, Strength) :-
-    print('Calculating count\n'),
-    nth1(Y, GameBoard, Line),
-    nth1(X, Line, Piece),
-    get_value_from_dice(Piece, Type, OffendingStrength),
-    OffenderType = Type, OffendingStrength > Strength, !,
-    count_pieces_with_type_in_direction_pos(position(X, Y), Offset, NextPosition),
-    count_pieces_with_type_in_direction_helper(GameBoard, OffenderType, NextPosition, Offset, CountTemp, Strength),
-    format('CountTemp: ~w\n', [CountTemp]),
-    Count is CountTemp+1.
-count_pieces_with_type_in_direction_helper(GameBoard, OffenderType, position(X, Y), Offset, Count, Strength) :-
-    count_pieces_with_type_in_direction_pos(position(X, Y), Offset, NextPosition),
-    format('Current position: ~w, nextposition: ~w, count: ~w\n', [position(X, Y), NextPosition, Count]),
-    count_pieces_with_type_in_direction_helper(GameBoard, OffenderType, NextPosition, Offset, Count, Strength).
 
-count_pieces_with_type_in_direction_pos(position(X, Y), xyOffset(0, 1), position(X, NextY)) :-
-    NextY is Y+1.
-count_pieces_with_type_in_direction_pos(position(X, Y), xyOffset(1, 0), position(NextX, Y)) :-
-    NextX is X+1.
-
-can_be_captured(piecePosition(Position, dice(Piece, Strength)), GameBoard) :-
-    get_pieces_with_offset_orthogonal_to_position(Position, GameBoard, NearPieces),
+can_be_captured(piecePosition(position(X, Y), dice(Piece, Strength)), GameBoard) :-   % by strength
+    get_pieces_with_offset_orthogonal_to_position(position(X, Y), GameBoard, NearPieces),
 
     member(pieceXYOffset(xyOffset(OffendingXOffset, OffendingYOffset), empty), NearPieces),
     get_opposite_type(Piece, OffenderType),
 
-    count_pieces_with_type_in_direction(GameBoard, OffenderType, Position, xyOffset(OffendingXOffset, OffendingYOffset), Count, Strength), Count >= 2, !,  % has got to have more strength
-    format('Piece at ~w can be captured by power by someone\n', [Position]).
+    valid_moves(game_state(_, _, GameBoard), OffenderType, OpponentMoves),
+    PosX is X+OffendingXOffset, PosY is Y+OffendingYOffset,
+    member(move(_StartPos, position(PosX, PosY), dice(_Who, OpponentStrength)), OpponentMoves),
+    OpponentStrength > Strength, !.  % has got to have more strength
 
-can_be_captured(piecePosition(Position, dice(Piece, _Value)), GameBoard) :-
-    get_pieces_with_offset_orthogonal_to_position(Position, GameBoard, NearPieces),
+can_be_captured(piecePosition(position(X, Y), dice(Piece, _Value)), GameBoard) :-    % by custody
+    get_pieces_with_offset_orthogonal_to_position(position(X, Y), GameBoard, NearPieces),
+
     member(pieceXYOffset(xyOffset(OffendingXOffset, OffendingYOffset), OffendingPiece), NearPieces), 
+
+    OffendingPieceX is X + OffendingXOffset, OffendingPieceY is Y + OffendingYOffset,
+    
     OffendingPiece \= empty, OffendingPiece \= dice(Piece, _SomeValue),
     get_opposite_type(Piece, OffenderType),
-    count_pieces_with_type_in_direction(GameBoard, OffenderType, Position, xyOffset(OffendingXOffset, OffendingYOffset), Count), Count >= 1, !,
-    format('Piece at ~w can be captured by custody by someone\n', [Position]).
+    
+    valid_moves(game_state(_, _, GameBoard), OffenderType, OpponentMoves),
+    PosX is X -1*OffendingXOffset, PosY is Y -1*OffendingYOffset,
+    member(move(position(StartX, StartY), position(PosX, PosY), _OpponentPiece), OpponentMoves),
+    (StartX \= OffendingPieceX; StartY \= OffendingPieceY), !.
 
 verify_can_capture_next_round(GameState, Moves) :-
-    print('Verifying custodial capture\n'),
     can_capture_custodial(GameState, Moves, _CustodialMove), !.
 verify_can_capture_next_round(GameState, Moves) :-
-    print('Verifying power capture\n'),
     can_capture_by_power(GameState, Moves, _PowerMove), !.
 
 can_capture_next_round(_GameState, [], _Move) :- !, fail.
 can_capture_next_round(game_state(Player, NPieces, GameBoard), [move(StartPosition, EndPosition, Piece)|_MovesT], Move) :-
     valid_piece_moves(GameBoard, piecePosition(EndPosition, Piece), Moves),
-    print(Moves), nl,
     verify_can_capture_next_round(game_state(Player, NPieces, GameBoard), Moves),
-    % \+ can_be_captured(piecePosition(EndPosition, Piece), GameBoard),
+    \+ can_be_captured(piecePosition(EndPosition, Piece), GameBoard), !,
     Move = move(StartPosition, EndPosition, Piece),
-    print('- - Can eat next round!\n'),
-    print(Move), nl,
-    wait_for_user_input.
+    print('Can eat next round!\n').
 
 can_capture_next_round(GameState, [_MovesH|MovesT], Move) :-
     can_capture_next_round(GameState, MovesT, Move), !.
@@ -233,10 +213,30 @@ avoid_being_captured(_GameState, [], _Move) :- !, fail.
 avoid_being_captured(game_state(_Player, _NPieces, GameBoard), [move(StartPosition, EndPosition, Piece)|_MovesT], Move) :-
     can_be_captured(piecePosition(StartPosition, Piece), GameBoard),
     \+ can_be_captured(piecePosition(EndPosition, Piece), GameBoard), !,
-    Move = move(StartPosition, EndPosition, Piece), print('avoided being captured!\n'), wait_for_user_input.
-
+    Move = move(StartPosition, EndPosition, Piece), print('Avoided being captured!\n').
+ 
 avoid_being_captured(GameState, [_MovesH|MovesT], Move) :-
     avoid_being_captured(GameState, MovesT, Move), !.
+
+move_towards_dragon(_GameState, [], _Move) :- !, fail.
+move_towards_dragon(game_state(_Player, _NPieces, GameBoard), [move(StartPosition, EndPosition, Piece)|_MovesT], Move) :-
+    (
+        is_next_to_dragon(StartPosition, position(DragonStartX, DragonStartY)) -> 
+        (    % if the piece is next to a dragon cave, it only leaves if the dragon was already invoked
+            nth1(DragonStartY, GameBoard, Row),
+            nth1(DragonStartX, Row, dragonCave(invoked))
+        )
+        ; true
+    ),
+    is_next_to_dragon(EndPosition, position(DragonEndX, DragonEndY)),   % only moves to a position that's next to an uninvoked dragon
+    nth1(DragonEndY, GameBoard, Row),
+	nth1(DragonEndX, Row, dragonCave(empty)),
+
+    \+ can_be_captured(piecePosition(EndPosition, Piece), GameBoard), !,
+    Move = move(StartPosition, EndPosition, Piece).
+
+move_towards_dragon(game_state(Player, NPieces, GameBoard), [_MovesH|MovesT], Move) :-
+    move_towards_dragon(game_state(Player, NPieces, GameBoard), MovesT, Move).
    
 % A melhor jogada
 % 1º se for possível fazer um dragão, fazer.
@@ -245,24 +245,24 @@ avoid_being_captured(GameState, [_MovesH|MovesT], Move) :-
 % 4º mover para uma posição que torne possível comer na próxima ronda. 
 % 5º evitar que uma peça seja comida.
 % 6º mover para próximo de um dragão.
-%choose_move_hard(GameState, Player, PossibleMoves, Move) :-
-%    print('Checking can make dragon...\n'),
-%    can_make_dragon(Player, GameState, PossibleMoves, Move), !.
-%choose_move_hard(GameState, Player, PossibleMoves, Move) :-
-%    print('Checking can capture custodial...\n'),
-%    can_capture_custodial(Player, GameState, PossibleMoves, Move), !.
-%choose_move_hard(GameState, _Player, PossibleMoves, Move) :-
-%    print('Checking can capture by power...\n'),
-%    can_capture_by_power(GameState, PossibleMoves, Move), !.
-%choose_move_hard(GameState, _Player, PossibleMoves, Move) :-
-%    print('Finding a position to eat next round...\n'),
-%    can_capture_next_round(GameState, PossibleMoves, Move), !.
+choose_move_hard(GameState, Player, PossibleMoves, Move) :-
+    print('Checking can make dragon...\n'),
+    can_make_dragon(Player, GameState, PossibleMoves, Move), !.
+choose_move_hard(GameState, _Player, PossibleMoves, Move) :-
+    print('Checking can capture custodial...\n'),
+    can_capture_custodial(GameState, PossibleMoves, Move), !.
+choose_move_hard(GameState, _Player, PossibleMoves, Move) :-
+    print('Checking can capture by power...\n'),
+    can_capture_by_power(GameState, PossibleMoves, Move), !.
+choose_move_hard(GameState, _Player, PossibleMoves, Move) :-
+    print('Finding a position to eat next round...\n'),
+    can_capture_next_round(GameState, PossibleMoves, Move), !.
 choose_move_hard(GameState, _Player, PossibleMoves, Move) :-
     print('Avoiding losing one of my pieces...\n'),
     avoid_being_captured(GameState, PossibleMoves, Move), !.
-%choose_move_hard(GameState, _Player, PossibleMoves, Move) :-
-%    print('Moving towards a dragon...\n'),
-%    can_capture_by_power(GameState, PossibleMoves, Move), !.
+choose_move_hard(GameState, _Player, PossibleMoves, Move) :-
+    print('Moving towards a dragon...\n'),
+    move_towards_dragon(GameState, PossibleMoves, Move), !.
 choose_move_hard(_GameState, _Player, PossibleMoves, Move) :-
     random_member(Move, PossibleMoves).
 

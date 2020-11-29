@@ -8,6 +8,7 @@ router(WhereTo) :-
     )).
 
 wait_for_user_input :-
+    print('Press ENTER to continue!\n'),
 	read_line(_).
 
 difficulty(1, easy).
