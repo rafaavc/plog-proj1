@@ -29,6 +29,8 @@ O jogo termina quando um dos jogadores tiver apenas uma peça, sendo o que tiver
 - Um jogador pode mover a sua peça entre duas peças adversárias sem ser capturado.
 - Uma jogada pode capturar mais do que uma peça do adversário, no caso da captura custodial.
 
+<div style="page-break-after: always"></div>
+
 ### Variantes
 
 **Captura por poder**
@@ -57,6 +59,8 @@ As caves dos lados fazem aparecer dragões com 3 pontos de poder; a do centro um
 
 [Tabuleiro](https://drive.google.com/file/d/1RkYiaxLTF0aXfGMNxtuH8Z0a9UlHSgjb/view?usp=sharing) (https://drive.google.com/file/d/1RkYiaxLTF0aXfGMNxtuH8Z0a9UlHSgjb/view?usp=sharing)
 
+<div style="page-break-after: always"></div>
+
 ## Lógica do jogo
 
 ### Representação interna do estado do jogo
@@ -66,7 +70,7 @@ As caves dos lados fazem aparecer dragões com 3 pontos de poder; a do centro um
 
 O tabuleiro será representado com o recurso a uma lista de listas. 
 
-##### Representação do número de peças de cada jogador
+#### Representação do número de peças de cada jogador
 
 O número de peças de cada jogador encontra-se representado pelo primeiro elemento da lista de listas que constitui o tabuleiro. O primeiro número corresponde ao jogador 0, das peças brancas, e o segundo ao jogador 1, das peças pretas.
 
@@ -83,6 +87,8 @@ No modo básico do jogo cada elemento do tabuleiro poderá apenas tomar os segui
 - `mountain` - peças "montanha" que se enontram em cada canto do tabuleiro;
 - `dragonCave(empty)` - peças "cave do dragão" que se encontram numa posição central do tabuleiro;
 - `dragonCave(invoked)` - peças "cave do dragão" que se encontram numa posição central do tabuleiro cuja peça do dragão associada já foi invocada;
+
+<div style="page-break-after: always"></div>
 
 #### Estado Inicial
 ```prolog
@@ -117,6 +123,8 @@ board([
 	[mountain, dice(white, 3), dice(white, 2), empty, empty, dice(white, 2), empty, dice(white, 3), mountain]
 ]).
 ```
+
+<div style="page-break-after: always"></div>
 
 #### Possível Estado final
 O jogo termina quando um dos jogadores tem apenas 1 peça.
@@ -153,6 +161,8 @@ O predicado **display_players_pieces/1** apresenta no ecrã o número de peças 
 
 O predicado **display_player/1** apresenta no ecrã o jogador atual.
 
+<div style="page-break-after: always"></div>
+
 Cada átomo presente no tabuleiro é representado por uma letra que lhe é associada da seguinte forma:
 
 ```prolog
@@ -167,6 +177,8 @@ symbol(dragonCave(invoked), 'DI').
 Representação inicial  |  Possível representação intermédia  |  Possível representação final
 :---------------------:|:-----------------------------------:|:------------:
 ![](images/board.png)  |  ![](images/intermediate.png)              |   ![](images/final.png)
+
+<div style="page-break-after: always"></div>
 
 #### Sistema de menus
 
@@ -193,6 +205,8 @@ router(WhereTo) :-
         )
     )).
 ```
+
+<div style="page-break-after: always"></div>
 
 ##### Menu Game Over
 
@@ -224,7 +238,6 @@ verify_digit_input(Min, Max, Input, Out) :-
     get_digit_from_num_code(D, Out),
     Out >= Min, Out =< Max.
 
-
 % get_digit_input(+Min, +Max, -Input)
 % Unifies 'Input' with a valid digit between Min and Max (including)
 get_digit_input(Min, Max, Input) :-
@@ -236,6 +249,8 @@ get_digit_input(Min, Max, Input) :-
         ; print('That is not a valid option!'), nl, get_digit_input(Min, Max, Input)
     ).
 ```
+
+<div style="page-break-after: always"></div>
 
 ### Lista de jogadas válidas
 <!-- Obtenção de lista com jogadas possíveis. O predicado
@@ -270,6 +285,8 @@ valid_moves_from_pieces(GameBoard, [PiecesH|PiecesT], Moves) :-
 ```prolog
     random_permutation(ListOfMovesTemp, ListOfMoves).
 ```
+
+<div style="page-break-after: always"></div>
 
 Estes três passos são executados no predicado `valid_moves/3`:
 ```prolog
@@ -310,6 +327,8 @@ move(GameState, Move, NewGameState) :-
 	check_dragons(TempGameState2, NewGameState).	
 ```
 
+<div style="page-break-after: always"></div>
+
 ### Final do Jogo
 <!-- Verificação do fim do jogo, com identificação do vencedor. O
 predicado deve chamar-se game_over(+GameState, -Winner). -->
@@ -342,6 +361,7 @@ value(game_state(_Player, npieces(Value, _NBlackPieces), _GameBoard), white, Val
 value(game_state(_Player, npieces(_NWhitePieces, Value), _GameBoard), black, Value).
 ```
 
+<div style="page-break-after: always"></div>
 
 ### Jogada do Computador
 <!--  Escolha da jogada a efetuar pelo computador,
@@ -372,6 +392,8 @@ A escolha da jogada é através da seleção de um membro aleatório da lista de
 choose_move_easy(PossibleMoves, Move) :-
     random_member(Move, PossibleMoves).   % Easy difficulty is just random moves
 ```
+
+<div style="page-break-after: always"></div>
 
 #### Dificuldade Média
 
@@ -408,6 +430,7 @@ Para a dificuldade média, considerámos as particularidades da dificuldade méd
 6. Se for possível **mover para próximo de um dragão sem correr risco de ser capturado**, então mover (tendo como objetivo eventualmente invocar um dragão).
 7. Escolher aleatóriamente a partir da lista de todas as jogadas possíveis (apenas se não for possível nenhuma das anteriores).
 
+<div style="page-break-after: always"></div>
 
 ```prolog
 % choose_move_hard(+GameState, +Player, +PossibleMoves, -Move)
@@ -434,6 +457,7 @@ choose_move_hard(_GameState, _Player, PossibleMoves, Move) :-   % Lastly, the bo
     random_member(Move, PossibleMoves).
 ```
 
+<div style="page-break-after: always"></div>
 
 ## Conclusões
 
