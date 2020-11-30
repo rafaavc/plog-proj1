@@ -166,11 +166,19 @@ O predicado **display_player/1** apresenta no ecrã o jogador atual.
 Cada átomo presente no tabuleiro é representado por uma letra que lhe é associada da seguinte forma:
 
 ```prolog
-symbol(mountain, 'M').
-symbol(black, 'B').
-symbol(empty, ' ').
-symbol(white, 'W').
-symbol(dragonCave(empty), 'D').
+% symbol(+Atom, -Symbol)
+symbol(mountain, 'M ').
+symbol(empty, '  ').
+
+symbol(dice(black, Value), Sym) :-
+  number_chars(Value, [ValueAtom|_]),
+  atom_concat('B', ValueAtom, Sym).
+
+symbol(dice(white, Value), Sym) :-
+  number_chars(Value, [ValueAtom|_]),
+  atom_concat('W', ValueAtom, Sym).
+
+symbol(dragonCave(empty), 'D ').
 symbol(dragonCave(invoked), 'DI').
 ```
 
