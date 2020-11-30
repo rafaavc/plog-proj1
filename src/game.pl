@@ -210,6 +210,12 @@ game_over(GameState, Winner) :-
 	(BlackCount =:= 1 -> Winner = white ; false)),
 	display_game(GameState, -1).
 
+% value(+GameState, +Player, -Value)
+% Evaluation of the state of the game.
+% Unifies 'Value' with the amount of pieces that the 'Player' has in-game
+value(game_state(_Player, npieces(Value, _NBlackPieces), _GameBoard), white, Value).
+value(game_state(_Player, npieces(_NWhitePieces, Value), _GameBoard), black, Value).
+
 % current_player(+GameState, -Player)
 % Gets the current player
 current_player(game_state(CurrPlayer, _NPieces, _Board), Player) :- Player = CurrPlayer.

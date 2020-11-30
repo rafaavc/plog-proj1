@@ -10,7 +10,7 @@ router(WhereTo) :-
         )
     )).
 
-% router(+WhereTo)
+% game_over_router(+WhereTo)
 % Establishes correspondence between a main menu option and the associated predicate
 game_over_router(WhereTo) :-
     (WhereTo = 1 -> play ; (
