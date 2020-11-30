@@ -3,15 +3,15 @@
 Project for the Logic Programming course 2020
 
 ---
-## Identificação
+## **Identificação**
 #### Turma 2, Grupo Three_Dragons_4
 - João Diogo Martins Romão (up201806779)
 - Rafael Valente Cristino (up201806680)
 
-## Instalação e execução
+## **Instalação e execução**
 Para executar o jogo, basta ter o SICStus 4.6.0 instalado, quer em Windows como Linux. Para abrir o jogo deve ser inserido `consult('game.pl').`, e para começar o jogo, `play.`.
 
-## Descrição do jogo
+## **Descrição do jogo**
 
 <!-- Descrição do jogo e das suas regras. Incluir ligações usadas (página do jogo, livro de regras...). -->
 
@@ -31,7 +31,7 @@ O jogo termina quando um dos jogadores tiver apenas uma peça, sendo o que tiver
 
 <div style="page-break-after: always"></div>
 
-### Variantes
+### **Variantes**
 
 **Captura por poder**
 
@@ -52,7 +52,7 @@ Se o jogador for o primeiro a rodear uma dada cave de dragão em todos os lados,
 As caves dos lados fazem aparecer dragões com 3 pontos de poder; a do centro um dragão com 5 pontos de poder.
 
 ***Durante a realização deste trabalho, o jogo foi implementado com todas as variantes.***
-### Ligações
+### **Ligações**
 [Página do jogo](https://boardgamegeek.com/boardgame/306972/three-dragons) (https://boardgamegeek.com/boardgame/306972/three-dragons)
 
 [Regras](https://drive.google.com/file/d/1WECUYhpHmKJimMTosrjJz_ZRqtwFB25M/view?usp=sharing) (https://drive.google.com/file/d/1WECUYhpHmKJimMTosrjJz_ZRqtwFB25M/view?usp=sharing)
@@ -61,9 +61,9 @@ As caves dos lados fazem aparecer dragões com 3 pontos de poder; a do centro um
 
 <div style="page-break-after: always"></div>
 
-## Lógica do jogo
+## **Lógica do jogo**
 
-### Representação interna do estado do jogo
+### **Representação interna do estado do jogo**
 <!--Indicação de como é representado o estado do jogo, incluindo tabuleiro, jogador atual, peças capturadas ou ainda por jogar / outras informações necessárias. Exemplos da representação em Prolog de estados *inicial*, *intermédio* e *final*. Indicação do significado de cada átomo.-->
 
 #### Tabuleiro
@@ -144,7 +144,7 @@ board([
 ]).
 ```
 
-### Visualização do estado do jogo
+### **Visualização do estado do jogo**
 <!--Pequena descrição da implementação do predicado de visualização do estado de jogo. Até 200 palavras.-->
 
 O predicado **play/0** inicia o jogo.
@@ -180,9 +180,9 @@ Representação inicial  |  Possível representação intermédia  |  Possível 
 
 <div style="page-break-after: always"></div>
 
-#### Sistema de menus
+### **Sistema de menus**
 
-##### Menu inicial
+#### Menu inicial
 
 <center><img src="images/main_menu.png" width="200"/></center>
 
@@ -208,7 +208,7 @@ router(WhereTo) :-
 
 <div style="page-break-after: always"></div>
 
-##### Menu Game Over
+#### Menu Game Over
 
 <center><img src="images/game_over_menu.png" width="200"/></center>
 
@@ -225,7 +225,7 @@ game_over_router(WhereTo) :-
     )).
 ```
 
-##### Validação de opções do menu
+#### Validação de opções do menu
 
 O jogador, sempre que insere input no programa, isere-o na consola, premindo ENTER no final (não é necessário terminar com '.').
 
@@ -252,7 +252,7 @@ get_digit_input(Min, Max, Input) :-
 
 <div style="page-break-after: always"></div>
 
-### Lista de jogadas válidas
+### **Lista de jogadas válidas**
 <!-- Obtenção de lista com jogadas possíveis. O predicado
 deve chamar-se valid_moves(+GameState, +Player, -ListOfMoves). -->
 
@@ -300,7 +300,7 @@ valid_moves(game_state(_Player, _NPieces, GameBoard), Player, ListOfMoves) :-
     random_permutation(ListOfMovesTemp, ListOfMoves). % Passo 3.
 ```
 
-### Execução de Jogadas
+### **Execução de Jogadas**
 <!-- Validação e execução de uma jogada, obtendo o novo
 estado do jogo. O predicado deve chamar-se move(+GameState, +Move,
 -NewGameState). -->
@@ -329,7 +329,7 @@ move(GameState, Move, NewGameState) :-
 
 <div style="page-break-after: always"></div>
 
-### Final do Jogo
+### **Final do Jogo**
 <!-- Verificação do fim do jogo, com identificação do vencedor. O
 predicado deve chamar-se game_over(+GameState, -Winner). -->
 
@@ -346,7 +346,7 @@ game_over(GameState, Winner) :-
 ```
 
 
-### Avaliação do Tabuleiro
+### **Avaliação do Tabuleiro**
 <!-- Forma(s) de avaliação do estado do jogo. O predicado
 deve chamar-se value(+GameState, +Player, -Value). -->
 
@@ -363,7 +363,7 @@ value(game_state(_Player, npieces(_NWhitePieces, Value), _GameBoard), black, Val
 
 <div style="page-break-after: always"></div>
 
-### Jogada do Computador
+### **Jogada do Computador**
 <!--  Escolha da jogada a efetuar pelo computador,
 dependendo do nível de dificuldade. O predicado deve chamar-se
 choose_move(+GameState, +Player, +Level, -Move). -->
@@ -459,18 +459,20 @@ choose_move_hard(_GameState, _Player, PossibleMoves, Move) :-   % Lastly, the bo
 
 <div style="page-break-after: always"></div>
 
-## Conclusões
+## **Conclusões**
 
 Ao longo da execução trabalho, tivemos a oportunidade de nos familiarizarmos com o Prolog e com a programação declarativa. Consideramos que foi desenvolvido um trabalho robusto, e que as competências desenvolvidas deixam margem para, no futuro, implementar aplicações com este tipo de programação de um modo mais atrativo e amigável para o utilizador.
 
-### Limitações do trabalho desenvolvido
+### **Limitações do trabalho desenvolvido**
 
 Após testar o nosso trabalho não encontrámos nenhuma falha/erro (algo que não funciona conforme o esperado).
 
-### Melhorias identificadas
+### **Melhorias identificadas**
 
 Uma zona onde há espaço a melhorar é a escolha da jogada do computador. Para além das estratégias implementadas, há espaço a dar mais prioridade à **invocação de dragões**, de forma a que a invocação destes torne o jogo mais competitivo. Outra melhoria possível seria, dentro de cada uma dessas estratégias, dar prioridades mais adequadas às peças, consoante o seu valor. Por exemplo, ao capturar uma peça por captura custodial, caso se tenha mais que uma opção, optar por capturar a peça de maior valor. Ao ter mais que uma peça em perigo, optar por salvar a que tiver maior valor.
 
-## Bibliografia
+## **Bibliografia**
 
-SICStus Prolog 4.6.0 - User's Manual - https://sicstus.sics.se/sicstus/docs/latest4/html/sicstus.html/
+[SICStus Prolog 4.6.0 - User's Manual](https://sicstus.sics.se/sicstus/docs/latest4/html/sicstus.html/) (https://sicstus.sics.se/sicstus/docs/latest4/html/sicstus.html/)
+
+[Página do jogo](https://boardgamegeek.com/boardgame/306972/three-dragons) (https://boardgamegeek.com/boardgame/306972/three-dragons)
