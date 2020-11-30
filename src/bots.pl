@@ -18,7 +18,7 @@ valid_moves_from_pieces(GameBoard, [PiecesH|PiecesT], Moves) :-
 
 % valid_moves(+GameState, +Player, -ListOfMoves)
 % 'ListOfMoves' is unified with all the moves the 'Player' can make in the current 'GameState'
-valid_moves(game_state(_GameState, _Player, GameBoard), Player, ListOfMoves) :-
+valid_moves(game_state(_Player, _NPieces, GameBoard), Player, ListOfMoves) :-
     findall(piecePosition(Position, dice(Player, N)), (    % finds all of the player's pieces
         nth_board_element(GameBoard, Position, dice(Player, N))
     ), PlayersPieces),
